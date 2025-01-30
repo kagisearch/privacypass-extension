@@ -1,0 +1,3 @@
+[submodule "privacypass-lib"]
+	path = privacypass-lib
+	url = https://github.com/kagisearch/privacypass-lib.git
