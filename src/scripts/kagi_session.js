@@ -34,7 +34,7 @@ async function get_kagi_session() {
   // if no cookie was available in the cookie jar or localStorage, but the cookie jar was accessible
   // then just remind the user to log into kagi
   if (!failed_to_read_cookie_jar) {
-    throw "no session cookie found, to generate tokens you need to log into Kagi.com";
+    throw "can not generate tokens - no login to Kagi detected or user in a private window";
   }
 
   // if you are here, the cookie jar was inaccessible and no session token was loaded into localStorage
