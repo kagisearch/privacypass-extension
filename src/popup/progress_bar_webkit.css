@@ -1,0 +1,30 @@
+.progress,
+.progress * {
+  box-sizing: border-box;
+}
+
+.progress {
+  flex-shrink: 0;
+  width: 152px;
+  height: 8px;
+  position: relative;
+}
+
+.progress>progress {
+  border-radius: 24px;
+  height: 8px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.progress>progress::-webkit-progress-value {
+  background: var(--neutral-graphite-graphite-100, #e6e6e8);
+  border-radius: 24px 0 0 24px;
+}
+
+.progress>progress::-webkit-progress-bar {
+  background: var(--accent-warning-warning, #ff964a);
+  border-radius: 24px;
+}

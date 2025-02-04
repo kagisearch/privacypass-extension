@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="progress_bar.css">
+</head>
+
+<body>
+  <div class="popup">
+    <!-- Header -->
+    <div class="header">
+      <img src="../images/kagi.svg" />
+      <div id="kagipp-settings" class="settings-icon">
+        <img src="../images/settings.svg" />
+      </div>
+    </div>
+    <!-- Main toggle -->
+    <div class="content">
+      <div class="anonymise-search">
+        <div class="anonymise-search2">Authenticate via Privacy Pass</div>
+        <div class="toggle">
+          <label class="switch">
+            <input id="kagipp-enabled" type="checkbox" />
+            <div class="slider"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div id="low-token-area">
+      <!-- Low token bar -->
+      <div id="low-token-count-div" style="width: 100%;">
+        <div class="anonymise-search">
+          <div class="tokens-stash">Remaining tokens</div>
+          <div id="available-tokens-count">-1</div>
+        </div>
+      </div>
+      <!-- Generate more tokens button -->
+      <div id="kagipp-generate-tokens-div" style="width: 100%;">
+        <div id="kagipp-generate-tokens" class="button">
+          <div class="tertiary-button">
+            <div class="tertiary">Generate tokens</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Status display component -->
+    <div id="status-div" class="status-message" style="display: block">
+      <div id="status-indicator-div">
+        <span>Status</span>
+        <div>
+          <span id="status-message-color" class="error-color">●</span>
+          <span id="status-message-type">Error</span>
+        </div>
+      </div>
+      <div id="status-message-div">
+        <span id="status-message">
+          status_message
+        </span>
+        <div id="status-message-close"><img src="../images/close.svg" /></div>
+      </div>
+    </div>
+    <!-- Learn more spoiler -->
+    <div style="max-width: 100%;">
+      <div id="learn-more" class="learn-more learn-more-overflow">
+        Searching on Kagi is already privacy-respecting.
+        Authenticating via Privacy Pass adds an additional layer of anonymity,
+        ensuring your searches remain completely unlinkable to your account.
+        <a href="https://help.kagi.com/kagi/privacy/privacy-pass.html" target="_blank" rel="noopener noreferrer">Learn
+          more</a>
+      </div>
+      <div id="view-more">
+        <span id="view-more-text">View more</span>
+        <img id="view-more-icon" src="../images/view-more.svg" />
+        <img id="view-less-icon" style="display: none;" src="../images/view-less.svg" />
+      </div>
+    </div>
+    <!-- Unit-test debug placeholder -->
+    <div id="debug-actions"></div>
+  </div>
+  <script type="module" src="browser.js"></script>
+  <script type="module" src="debug.js"></script>
+  <script type="module" src="popup.js"></script>
+</body>
+
+</html>
