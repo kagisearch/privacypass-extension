@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # build privacypass-lib
-# git submodule init && git submodule update
-# bash -c "(cd privacypass-lib; DOCKER=${DOCKER} bash build.sh)"
+git submodule init && git submodule update
+bash -c "(cd privacypass-lib; DOCKER=${DOCKER} bash build.sh)"
 
 # build the extension
 
