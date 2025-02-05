@@ -33,10 +33,14 @@ let REDEMPTION_ENDPOINTS = [
     `${SCHEME}://${DOMAIN_PORT}/html`,
     `${SCHEME}://${DOMAIN_PORT}/settings`,
     `${SCHEME}://${DOMAIN_PORT}/api/quick_settings/landing`,
+    `${SCHEME}://${DOMAIN_PORT}/mother/context`,
+    `${SCHEME}://${DOMAIN_PORT}/mother/summarize_document`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/|`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/settings`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/landing`
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/landing`,
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/context`,
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/summarize_document`
 ]
 for (let i = 0; i < REDEMPTION_SERVICES.length; i++) {
     const service = REDEMPTION_SERVICES[i]

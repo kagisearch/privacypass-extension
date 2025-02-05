@@ -21,6 +21,8 @@ In particular, some caveats:
 import {
     ACCEPT_EVENT_STREAM_OFFSET,
     ACCEPT_TRANSLATE_JSON_OFFSET,
+    ACCEPT_QUICK_ANSWER_OFFSET,
+    ACCEPT_QUICK_ANSWER_DOC_OFFSET,
     ANONYMIZING_RULES_OFFSET,
     ANONYMIZING_RULESET,
     REFERER_RULES_OFFSET,
@@ -190,6 +192,9 @@ async function setAntiFingerprintingRules() {
     await setHeaderRuleset(ANONYMIZING_RULESET, ANONYMIZING_RULES_OFFSET)
     // just for /socket/* endpoints, force Accept: "text/event-stream"
     await setHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET, "socket/", 2);
+    // support for quick answer and summarize document from search results page
+    await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET, "mother/context", 2);
+    await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET, "mother/summarize_document", 2);
     // just for translate.kagi.com/?/translate/ to accept "application/json"
     await setHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET, "?/translate", 2, "translate");
 }
@@ -199,6 +204,8 @@ async function setAntiFingerprintingRules() {
 async function unsetAntiFingerprintingRules() {
     await unsetHeaderRuleset(ANONYMIZING_RULESET, ANONYMIZING_RULES_OFFSET)
     await unsetHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET);
+    await unsetHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET);
+    await unsetHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET);
     await unsetHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET);
 }
 
