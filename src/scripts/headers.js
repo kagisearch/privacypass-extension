@@ -20,6 +20,7 @@ In particular, some caveats:
 
 import {
     ACCEPT_EVENT_STREAM_OFFSET,
+    ACCEPT_TRANSLATE_JSON_OFFSET,
     ANONYMIZING_RULES_OFFSET,
     ANONYMIZING_RULESET,
     REFERER_RULES_OFFSET,
@@ -38,7 +39,8 @@ import {
     SCHEME,
     ONION_SCHEME,
     DOMAIN_PORT,
-    ONION_DOMAIN_PORT
+    ONION_DOMAIN_PORT,
+    DOMAIN
 } from './config.js'
 
 
@@ -102,11 +104,13 @@ function range(size, startAt = 0) {
     return [...Array(size).keys()].map(i => i + startAt);
 }
 
-function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriority = 1) {
+function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriority = 1, subDomain = "") {
     let add_rules = [];
     let nrules = offset; // rule separation
-    const endpoint = (ruleEndpointPath != "") ? `||${DOMAIN_PORT}/${ruleEndpointPath}` : `||${DOMAIN_PORT}/`;
-    const onion_endpoint = (ruleEndpointPath != "") ? `||${ONION_DOMAIN_PORT}/${ruleEndpointPath}` : `||${ONION_DOMAIN_PORT}/`;
+    const full_domain_port = (subDomain != "") ? `${subDomain}.${DOMAIN_PORT}` : DOMAIN_PORT;
+    const full_onion_domain_port = (subDomain != "") ? `${subDomain}.${ONION_DOMAIN_PORT}` : ONION_DOMAIN_PORT;
+    const endpoint = (ruleEndpointPath != "") ? `||${full_domain_port}/${ruleEndpointPath}` : `||${full_domain_port}/`; // note, using ||${DOMAIN_PORT} to also cover subdomains such as translate.kagi.com
+    const onion_endpoint = (ruleEndpointPath != "") ? `||${full_onion_domain_port}/${ruleEndpointPath}` : `||${full_onion_domain_port}/`;
 
     // create the rules to deal with the headers that deanonymise the user
     for (const key in ruleset) {
@@ -128,8 +132,8 @@ function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriori
     return rules;
 };
 
-async function setHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriority = 1) {
-    const rules = compileHeaderRuleset(ruleset, offset, ruleEndpointPath, rulePriority);
+async function setHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriority = 1, subDomain = "") {
+    const rules = compileHeaderRuleset(ruleset, offset, ruleEndpointPath, rulePriority, subDomain);
     if (VERBOSE) {
         console.log(`setHeaderRuleset: ${rules}`)
     }
@@ -186,6 +190,8 @@ async function setAntiFingerprintingRules() {
     await setHeaderRuleset(ANONYMIZING_RULESET, ANONYMIZING_RULES_OFFSET)
     // just for /socket/* endpoints, force Accept: "text/event-stream"
     await setHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET, "socket/", 2);
+    // just for translate.kagi.com/?/translate/ to accept "application/json"
+    await setHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET, "?/translate", 2, "translate");
 }
 
 
@@ -193,6 +199,7 @@ async function setAntiFingerprintingRules() {
 async function unsetAntiFingerprintingRules() {
     await unsetHeaderRuleset(ANONYMIZING_RULESET, ANONYMIZING_RULES_OFFSET)
     await unsetHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET);
+    await unsetHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET);
 }
 
 // --- sets HTTP Authorization header
