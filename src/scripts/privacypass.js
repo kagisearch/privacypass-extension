@@ -99,7 +99,7 @@ async function tokenGenerationProtocol(wwwa_value, onion = false) {
       }
       // 403 FORBIDDEN {"error_code": "unsupported_subscription"}
       // - "This feature requires a plan with unlimited seaches. Please upgrade your plan to access it. For more information, visit our help page"
-      throw "this feature requires a plan with unlimited seaches. Please upgrade your plan to access it. For more information, visit our help page"
+      throw "this feature requires a plan with unlimited searches. Please upgrade your plan to access it. For more information, visit our help page"
     } else {
       throw `${status}: ${body} (${hint})`;
     }
