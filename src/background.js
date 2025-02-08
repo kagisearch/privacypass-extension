@@ -3,8 +3,6 @@ import {
 } from './popup/utils.js'
 
 import {
-  PERIODIC_TOKEN_STASHING,
-  TOKEN_STASHING_PERIOD,
   DOMAIN_PORT,
   ONION_DOMAIN_PORT,
   VERBOSE,
@@ -70,24 +68,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     await onStart();
   } else if (details.reason == "update") {
     // No need to do anything on update
-    // Since we have periodic checks using the PERIODIC_TOKEN_STASHING alarm
-  }
-});
-
-// ----- code run periodically to generate fresh tokens
-
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === PERIODIC_TOKEN_STASHING) {
-    // Periodically download more tokens as needed
-    if (VERBOSE) {
-      console.log(`periodic token stashing, ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
-    }
-    try {
-      await genTokens();
-    } catch (ex) {
-      await logError(`${ex}`);
-      return;
-    }
   }
 });
 
@@ -100,15 +80,6 @@ chrome.runtime.onMessageExternal.addListener(statusRequestListener);
 async function onStart() {
   if (VERBOSE) {
     console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
-  }
-  // Restart the periodic token stashing alarm as needed
-  const alarm = await chrome.alarms.get(PERIODIC_TOKEN_STASHING);
-  if (!alarm) {
-    // Create an alarm to handle WWW-Authenticate update and token stashing
-    await chrome.alarms.create(PERIODIC_TOKEN_STASHING, {
-      delayInMinutes: 0,
-      periodInMinutes: TOKEN_STASHING_PERIOD
-    });
   }
   // reset enabled/disabled status depending on what the user left it as
   const { enabled } = await browser.storage.local.get({ 'enabled': false });
