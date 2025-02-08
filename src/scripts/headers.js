@@ -334,13 +334,13 @@ async function unsetAuthorizationHeader(endpoint) {
 
 async function setNoTokensRedirect(endpoint) {
     console.log(`setNoTokensRedirect: ${endpoint}`);
-    if (endpoint == `${SCHEME}://${DOMAIN_PORT}/|`
-        || endpoint == `${SCHEME}://${DOMAIN_PORT}/html`
-        || endpoint == `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/|`
-        || endpoint == `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html`) {
-        // skip these, so that users can log into kagi with the extension enabled when they are out of tokens
-        return;
-    }
+    // if (endpoint == `${SCHEME}://${DOMAIN_PORT}/|`
+    //     || endpoint == `${SCHEME}://${DOMAIN_PORT}/html`
+    //     || endpoint == `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/|`
+    //     || endpoint == `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html`) {
+    //     // skip these, so that users can log into kagi with the extension enabled when they are out of tokens
+    //     return;
+    // }
     let resourceTypes = ["main_frame", "sub_frame", "xmlhttprequest", "csp_report", "font", "image", "media", "object", "other", "ping", "script", "stylesheet", "websocket"];
     if (IS_FIREFOX) {
         resourceTypes = resourceTypes.concat(["beacon", "imageset", "object_subrequest", "speculative", "web_manifest", "xml_dtd", "xslt"])
