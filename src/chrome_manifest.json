@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Kagi Privacy Pass",
   "description": "Enables use of Privacy Pass to authenticate Kagi search.",
-  "version": "1.0.0.7",
+  "version": "1.0.1",
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": "images/icon-64.png"
