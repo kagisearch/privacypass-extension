@@ -25,11 +25,6 @@ const debug_available_tokens_div = document.querySelector("#available-tokens")
 const available_tokens_div = document.querySelector("#available-tokens-count")
 const enabled_checkbox = document.querySelector("#kagipp-enabled")
 const settingsbtn = document.querySelector("#kagipp-settings")
-const viewmorelessbtn = document.querySelector("#view-more")
-const viewmorelesstext = document.querySelector("#view-more-text")
-const viewmoreicn = document.querySelector("#view-more-icon")
-const viewlessicn = document.querySelector("#view-less-icon")
-const learnmoretxt = document.querySelector("#learn-more")
 const lowtokencountdiv = document.querySelector("#low-token-area")
 const gentokensbtn = document.querySelector("#kagipp-generate-tokens")
 const gentokensbtndiv = document.querySelector("#kagipp-generate-tokens-div")
@@ -187,26 +182,7 @@ if (gentokensbtn) {
   })
 }
 
-// -- view more/view less button
-
-function toggle_view_more_less() {
-  if (viewmorelesstext.textContent == "View more") {
-    viewmorelesstext.textContent = "View less"
-    hide(viewmoreicn)
-    show(viewlessicn, "inline-block")
-    learnmoretxt.className = "learn-more"
-  } else {
-    viewmorelesstext.textContent = "View more"
-    hide(viewlessicn)
-    show(viewmoreicn, "inline-block")
-    learnmoretxt.className = "learn-more learn-more-overflow"
-  }
-}
-
-if (viewmorelessbtn && viewmorelesstext) {
-  viewmorelesstext.textContent = "View more"
-  viewmorelessbtn.addEventListener("click", toggle_view_more_less)
-}
+// --- close error button
 
 if (closeerrorbtn) {
   closeerrorbtn.addEventListener("click", function () {
