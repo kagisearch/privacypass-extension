@@ -325,7 +325,7 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
 }
 
 #status-message {
-  display: flex;
+  display: block;
   padding: 8px 12px;
   align-items: center;
   gap: 10px;
@@ -333,6 +333,8 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
   border-radius: 8px;
   background: rgba(236, 0, 0, 0.05);
   text-align: left;
+  font-size: 11pt;
+  line-height: 13pt;
 }
 
 #status-message-div {

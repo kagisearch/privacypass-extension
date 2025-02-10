@@ -65,7 +65,7 @@ async function setEnabled() {
             await get_kagi_session();
             await genTokens();
         } catch (ex) {
-            await logError(ex);
+            await logError(`${ex}`);
             await browser.storage.local.set({ 'enabled': false })
             await sendPPModeStatus();
             return;

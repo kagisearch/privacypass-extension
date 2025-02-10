@@ -90,8 +90,6 @@ export {
 
 // token generation settings
 export const TOKENS_TO_STASH = 500;
-export const PERIODIC_TOKEN_STASHING = "periodic-token-stashing-alarm";
-export const TOKEN_STASHING_PERIOD = 60 * 24 * 7 // minutes = 1 week
 export const MAX_TOKENS = 2000;
 export const LOW_TOKEN_COUNT = 50; // if available tokens below this threshold, show counts
 

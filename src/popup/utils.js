@@ -13,8 +13,7 @@ async function logStatus(msg, type) {
 
 async function logError(err) {
   console.log(`Error: ${err}`)
-  const msg = `Error, ${err} (${time()})`
-  logStatus(msg, 'error')
+  logStatus(err, 'error')
 }
 
 async function clearError() {
@@ -24,5 +23,6 @@ async function clearError() {
 export {
   logStatus,
   logError,
-  clearError
+  clearError,
+  time
 };

@@ -17,6 +17,14 @@ import {
   get_kagi_session
 } from './kagi_session.js'
 
+import {
+  FETCH_FAILED_ERROR,
+  TOKEN_REQUEST_UNAUTHORIZED_ERROR,
+  TOKEN_REQUEST_NO_SUBSCRIPTION_ERROR,
+  TOKEN_REQUEST_UNSUPPORTED_SUBSCRIPTION_ERROR,
+  UNEXPECTED_ERROR_FMT
+} from './errors.js'
+
 // returns WWW-Authenticate header
 async function getWWWAuthenticateHeader(onion = false) {
   if (VERBOSE) {
@@ -37,7 +45,7 @@ async function getWWWAuthenticateHeader(onion = false) {
       //   won't deanonymise anyway, and will result in the "are you online?" error message, also the right path
       return origin_wwwa_value;
     }
-    throw `failed to fetch server's public key; are you online? Exception: ${ex}`
+    throw FETCH_FAILED_ERROR;
   }
   return origin_wwwa_value;
 }
@@ -78,30 +86,26 @@ async function tokenGenerationProtocol(wwwa_value, onion = false) {
       }
     });
   } catch (ex) {
-    throw `failed to generate tokens; are you online? Exception: ${ex}`
+    throw FETCH_FAILED_ERROR;
   }
   if (!issuer_response) {
-    throw `failed to generate tokens; are you online?`
+    throw FETCH_FAILED_ERROR;
   }
   if (!issuer_response.ok) {
     const status = issuer_response.status;
     const body = await issuer_response.text();
-    let hint = "";
     if (status == 401) {
       // 401 UNAUTHORIZED {"error_code": "not_logged_in"}
-      // - "Your session has expired. Please sign in again to continue."
-      throw "your session has expired. Please sign in again to continue."
+      throw TOKEN_REQUEST_UNAUTHORIZED_ERROR;
     } else if (status == 403) {
       if (body.includes("no_subscription")) {
         // 403 FORBIDDEN {"error_code": "no_subscription"}
-        // - "This feature requires a paid subscription. Please upgrade your plan to access it. For more information, visit our help page."
-        throw "this feature requires a paid subscription. Please upgrade your plan to access it. For more information, visit our help page."
+        throw TOKEN_REQUEST_NO_SUBSCRIPTION_ERROR;
       }
       // 403 FORBIDDEN {"error_code": "unsupported_subscription"}
-      // - "This feature requires a plan with unlimited seaches. Please upgrade your plan to access it. For more information, visit our help page"
-      throw "this feature requires a plan with unlimited searches. Please upgrade your plan to access it. For more information, visit our help page"
+      throw TOKEN_REQUEST_UNSUPPORTED_SUBSCRIPTION_ERROR;
     } else {
-      throw `${status}: ${body} (${hint})`;
+      throw UNEXPECTED_ERROR_FMT.replace("{ERROR}", `[${status}: ${body}]`);
     }
   }
   const token_response = await issuer_response.text();
