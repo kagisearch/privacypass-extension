@@ -28,6 +28,11 @@ import {
     setNoTokensRedirect
 } from './headers.js'
 
+import {
+    OVER_QUOTA_ERROR,
+    FAILED_LOADING_NEXT_TOKEN_ERROR
+} from './errors.js'
+
 async function unloadNextToken(endpoint) {
     if (VERBOSE) {
         // console.log(`unloadNextToken: ${endpoint}`)
@@ -86,7 +91,7 @@ async function loadNextToken(endpoint) {
         }
     } else {
         // did not find a fresh token
-        await logError("tried loading next token, but no tokens available");
+        await logError(FAILED_LOADING_NEXT_TOKEN_ERROR);
         await unsetAuthorizationHeader(endpoint);
         await setNoTokensRedirect(endpoint);
         if (GEN_TOKENS_ON_ZERO_COUNT) { // always true, useful to set to false for debug
@@ -112,7 +117,7 @@ async function genTokens() {
     const tokens = await tokenGenerationProtocol(WA, onion);
     // store tokens together with the current time, to allow the extension removing stale tokens if unused for a while
     if (tokens.length <= 0) {
-        throw "no tokens generated; you may have gone over your quota, or your Kagi session may have expired"
+        throw OVER_QUOTA_ERROR;
     }
     // tokens stored as FIFO, popping new tokens from the end of the list
     const current_time = (new Date()).getTime()

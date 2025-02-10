@@ -1,3 +1,8 @@
+import {
+  NO_KAGI_SESSION_ERROR,
+  NO_COOKIE_JAR_ACCESS
+} from './errors.js'
+
 /*
  * Attempts to grab sessions from existing Kagi windows.
  */
@@ -34,13 +39,13 @@ async function get_kagi_session() {
   // if no cookie was available in the cookie jar or localStorage, but the cookie jar was accessible
   // then just remind the user to log into kagi
   if (!failed_to_read_cookie_jar) {
-    throw "can not generate tokens - no login to Kagi detected or user in a private window";
+    throw NO_KAGI_SESSION_ERROR;
   }
 
   // if you are here, the cookie jar was inaccessible and no session token was loaded into localStorage
   // via the settings UI. likely you are using the Tor browser, or some other browser that does not
   // let extensions see into the cookie jar
-  throw "failed to read session cookie to generate tokens; are you using the Tor Browser? Load the value in the extension's settings menu"
+  throw NO_COOKIE_JAR_ACCESS;
 }
 
 export {

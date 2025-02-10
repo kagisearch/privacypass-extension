@@ -65,7 +65,7 @@ function display_status(status) {
   if (type == 'error') {
     status_msg_color.className = 'error-color'
     status_msg_type.textContent = "Error"
-    status_msg.textContent = msg;
+    status_msg.innerHTML = msg;
     show(status_msg_div)
   } else if (type == 'wait') {
     hide(status_msg_div)

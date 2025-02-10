@@ -3,6 +3,7 @@ import {
     setPPHeaders,
     unsetPPHeaders,
     setPPHeadersListener,
+    genTokens,
 } from './generation_and_redemption.js'
 
 import {
@@ -62,8 +63,9 @@ async function setEnabled() {
     if (n_tokens <= 0) {
         try {
             await get_kagi_session();
+            await genTokens();
         } catch (ex) {
-            await logError(ex);
+            await logError(`${ex}`);
             await browser.storage.local.set({ 'enabled': false })
             await sendPPModeStatus();
             return;
