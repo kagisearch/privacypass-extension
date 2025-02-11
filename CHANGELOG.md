@@ -1,6 +1,24 @@
 
 # Change Log
 
+## [1.0.1] - 2025-02-11
+
+### Added
+
+- Support for text translation on Kagi Translate.
+
+### Changed
+
+- Made error messages more helpful.
+- Removed redundant periodic token generation.
+- Added more information in the "out of tokens" page.
+- Added "/" and "/html" as endpoints that can see the "out of tokens" page.
+- Simplified the extension's UI.
+
+### Fixed
+
+- Stopped the extension from getting enabled whenever no tokens were available and token generation failed due to account not being authorized.
+
 ## [1.0.0.7] - 2025-02-05
 
 ### Added
