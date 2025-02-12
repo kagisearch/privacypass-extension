@@ -1,6 +1,18 @@
 
 # Change Log
 
+## [1.0.2] - 2025-02-12
+
+### Added
+
+- Extension icon now reflects whether Privacy Pass is in use or not.
+
+### Changed
+
+- Extension icon.
+
+### Fixed
+
 ## [1.0.1] - 2025-02-11
 
 ### Added
