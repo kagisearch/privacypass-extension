@@ -4,6 +4,10 @@ import {
 } from './popup/utils.js'
 
 import {
+  update_extension_icon
+} from './scripts/icon.js'
+
+import {
   DOMAIN_PORT,
   ONION_DOMAIN_PORT,
   VERBOSE,

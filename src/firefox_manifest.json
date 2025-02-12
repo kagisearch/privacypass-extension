@@ -5,20 +5,16 @@
   "version": "1.0.1",
   "action": {
     "default_popup": "popup/popup.html",
-    "default_icon": "images/icon-32.png"
+    "default_icon": "images/icons/disabled/icon-64.png"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
   },
   "icons": {
-    "16": "images/icon-16.png",
-    "32": "images/icon-32.png",
-    "48": "images/icon-48.png",
-    "64": "images/icon-64.png",
-    "96": "images/icon-96.png",
-    "128": "images/icon-128.png",
-    "256": "images/icon-256.png",
-    "512": "images/icon-512.png"
+    "16": "images/icons/enabled/icon-16.png",
+    "32": "images/icons/enabled/icon-32.png",
+    "64": "images/icons/enabled/icon-64.png",
+    "128": "images/icons/enabled/icon-128.png"
   },
   "permissions": [
     "declarativeNetRequestWithHostAccess",

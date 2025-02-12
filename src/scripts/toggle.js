@@ -16,6 +16,10 @@ import {
 } from './headers.js'
 
 import {
+    update_extension_icon
+} from './icon.js'
+
+import {
     VERBOSE,
     REDEMPTION_ENDPOINTS,
     WEBREQUEST_REDEMPTION_ENDPOINTS,
@@ -67,6 +71,7 @@ async function setEnabled() {
         } catch (ex) {
             await logError(`${ex}`);
             await browser.storage.local.set({ 'enabled': false })
+            await update_extension_icon(false);
             await sendPPModeStatus();
             return;
         }
@@ -93,6 +98,7 @@ async function setEnabled() {
         },
         []
     )
+    await update_extension_icon(true);
 }
 
 async function setDisabled() {
@@ -112,6 +118,7 @@ async function setDisabled() {
         { urls: ["<all_urls>"] },
         ["responseHeaders"]
     )
+    await update_extension_icon(false);
 }
 
 export {
