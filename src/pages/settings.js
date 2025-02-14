@@ -1,6 +1,6 @@
 import {
   clearState
-} from './clear.js'
+} from '../popup/clear.js'
 
 
 // ----- generate tokens
@@ -41,7 +41,7 @@ if (discardtokenbtn) {
 
 async function clear_state() {
   await clearState();
-  window.close();
+  window.location.reload();
 }
 
 if (clearstatebtn) {
