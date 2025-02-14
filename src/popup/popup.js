@@ -153,7 +153,7 @@ function open_settings() {
   if (!browser.windows) {
     return;
   }
-  const height = 220;
+  const height = 260;
   const width = 240;
   const top = screen.height / 2 - height / 2;
   const left = screen.width / 2 - width / 2;
