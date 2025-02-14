@@ -62,7 +62,7 @@ async function checkingDoubleSpendListener(details) {
     } else if (details.statusCode == 403) {
         // let the user know that their tokens are stale
         // realistically, this should only happen to devs debugging against staging
-        chrome.windows.create({url: INVALID_TOKEN_REDIRECT_URL});
+        browser.tabs.create({url: INVALID_TOKEN_REDIRECT_URL});
     }
 }
 
