@@ -1,7 +1,3 @@
-import {
-  update_extension_icon
-} from '../scripts/icon.js'
-
 const enabled_checkbox = document.querySelector("#kagipp-enabled")
 const status_message_indicator = document.querySelector("#status-message-indicator")
 

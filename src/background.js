@@ -83,7 +83,9 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     await setEnabled();
     await onStart();
   } else if (details.reason == "update") {
-    // No need to do anything on update
+    // make sure the icon extension reflects enabled/disabled
+    const { enabled } = await browser.storage.local.get({ 'enabled': false });
+    await update_extension_icon(enabled);
   }
 });
 
