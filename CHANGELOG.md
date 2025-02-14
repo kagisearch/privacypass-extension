@@ -1,6 +1,16 @@
 
 # Change Log
 
+## [1.0.3] - 2025-02-14
+
+### Added
+
+- Button in settings dialog to discard the currently loaded token from all endpoints. This enables one to recover from a double-spend situation where the system fails to automatically recover.
+
+### Changed
+
+### Fixed
+
 ## [1.0.2] - 2025-02-12
 
 ### Added
