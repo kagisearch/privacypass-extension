@@ -71,6 +71,7 @@ export {
     HTTP_AUTHORIZATION_ID,
     NO_TOKEN_REDIRECT_ID
 };
+export const INVALID_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/invalid-token.html");
 export const NO_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/out-of-tokens.html");
 export const LOCAL_REDIRECTOR_URL = browser.runtime.getURL("pages/redirector.html");
 export const LOCAL_REDIRECTOR_ID = 2;

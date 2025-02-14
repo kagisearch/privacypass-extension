@@ -4,6 +4,13 @@ if (!globalThis.browser) {
 }
 export const IS_FIREFOX = (typeof browser.runtime.getBrowserInfo === 'function')
 
+// debug settings
+export const STAGING = false;
+export const VERBOSE = false;
+export const GEN_TOKENS_ON_LOW_COUNT = true;
+export const GEN_TOKENS_ON_ZERO_COUNT = true;
+
+// endpoints
 export const SCHEME = "https"
 export const DOMAIN = "kagi.com"
 export const PORT = "443"
@@ -15,9 +22,9 @@ export const ONION_DOMAIN_PORT = ONION_DOMAIN;
 // token generation endpoints
 export const REQUEST_PATH = "pp/gettokens"
 export const WWWA_PATH = "pp/wwwa"
-export const ISSUER_REQUEST_ENDPOINT = `${SCHEME}://${DOMAIN_PORT}/${REQUEST_PATH}`;
+export const ISSUER_REQUEST_ENDPOINT = STAGING ? `${SCHEME}://stage.${DOMAIN_PORT}/${REQUEST_PATH}` : `${SCHEME}://${DOMAIN_PORT}/${REQUEST_PATH}`;
 export const ONION_ISSUER_REQUEST_ENDPOINT = `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/${REQUEST_PATH}`;
-export const WWWA_ENDPOINT = `${SCHEME}://${DOMAIN_PORT}/${WWWA_PATH}`;
+export const WWWA_ENDPOINT = STAGING ? `${SCHEME}://stage.${DOMAIN_PORT}/${WWWA_PATH}` : `${SCHEME}://${DOMAIN_PORT}/${WWWA_PATH}`;
 export const ONION_WWWA_ENDPOINT = `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/${WWWA_PATH}`;
 
 // token redemption endpoints
@@ -42,6 +49,14 @@ let REDEMPTION_ENDPOINTS = [
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/context`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/summarize_document`
 ]
+if (STAGING) {
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/|`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/html`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/settings`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/api/quick_settings/landing`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/context`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/summarize_document`)
+}
 for (let i = 0; i < REDEMPTION_SERVICES.length; i++) {
     const service = REDEMPTION_SERVICES[i]
     REDEMPTION_ENDPOINTS.push(
@@ -68,6 +83,20 @@ for (let i = 0; i < REDEMPTION_SERVICES.length; i++) {
     REDEMPTION_ENDPOINTS.push(
         `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/${service}`
     )
+    if (STAGING) {
+        REDEMPTION_ENDPOINTS.push(
+            `${SCHEME}://stage.${DOMAIN_PORT}/${service}`
+        )
+        REDEMPTION_ENDPOINTS.push(
+            `${SCHEME}://stage.${DOMAIN_PORT}/html/${service}`
+        )
+        REDEMPTION_ENDPOINTS.push(
+            `${SCHEME}://stage.${DOMAIN_PORT}/socket/${service}`
+        )
+        REDEMPTION_ENDPOINTS.push(
+            `${SCHEME}://stage.${DOMAIN_PORT}/api/quick_settings/${service}`
+        )
+    }
 }
 export {
     REDEMPTION_ENDPOINTS
@@ -92,12 +121,6 @@ export {
 export const TOKENS_TO_STASH = 500;
 export const MAX_TOKENS = 2000;
 export const LOW_TOKEN_COUNT = 50; // if available tokens below this threshold, show counts
-
-// debug settings
-export const STAGING = false;
-export const VERBOSE = false;
-export const GEN_TOKENS_ON_LOW_COUNT = true;
-export const GEN_TOKENS_ON_ZERO_COUNT = true;
 
 // settings for communication with Kagi Search extension
 const FIREFOX_KAGI_EXTENSION_ID = "search@kagi.com";

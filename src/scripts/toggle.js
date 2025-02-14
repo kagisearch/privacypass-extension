@@ -41,6 +41,10 @@ import {
     sendPPModeStatus,
 } from './communication_with_main_extension.js'
 
+import {
+    INVALID_TOKEN_REDIRECT_URL
+} from './anonymization.js'
+
 async function checkingDoubleSpendListener(details) {
     if (VERBOSE) {
         console.log(`checkingDoubleSpendListener: ${details.statusCode} ${details.url}`)
@@ -55,6 +59,10 @@ async function checkingDoubleSpendListener(details) {
             console.log(`> loading a new token for ${endpoint}`)
         }
         await setPPHeaders(endpoint);
+    } else if (details.statusCode == 403) {
+        // let the user know that their tokens are stale
+        // realistically, this should only happen to devs debugging against staging
+        chrome.windows.create({url: INVALID_TOKEN_REDIRECT_URL});
     }
 }
 
