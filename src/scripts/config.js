@@ -94,6 +94,7 @@ export const MAX_TOKENS = 2000;
 export const LOW_TOKEN_COUNT = 50; // if available tokens below this threshold, show counts
 
 // debug settings
+export const STAGING = false;
 export const VERBOSE = false;
 export const GEN_TOKENS_ON_LOW_COUNT = true;
 export const GEN_TOKENS_ON_ZERO_COUNT = true;
