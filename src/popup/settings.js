@@ -10,6 +10,8 @@ const clearstatebtn = document.querySelector("#kagipp-clear-state")
 const sessioncookieinp = document.querySelector("#kagipp-session-cookie")
 const savesessioncookiebtn = document.querySelector("#kagipp-save-session-cookie")
 const savesessioncookiecheck = document.querySelector("#kagipp-save-session-cookie-check")
+const discardtokenbtn = document.querySelector("#kagipp-discard-current-token")
+const discardtokencheck = document.querySelector("#kagipp-discard-current-token-check")
 
 async function generate_tokens() {
   // attempt to generate tokens
@@ -22,6 +24,19 @@ async function generate_tokens() {
 
 if (generatebtn) {
   generatebtn.addEventListener("click", generate_tokens)
+}
+
+async function discard_current_token() {
+  browser.runtime.sendMessage('force_load_next_token');
+
+  discardtokencheck.style.display = "inline";
+  setTimeout(() => {
+    discardtokencheck.style.display = "none";
+  }, 1000)
+}
+
+if (discardtokenbtn) {
+  discardtokenbtn.addEventListener("click", discard_current_token)
 }
 
 async function clear_state() {

@@ -12,12 +12,14 @@ import {
   ONION_DOMAIN_PORT,
   VERBOSE,
   SCHEME,
-  ONION_SCHEME
+  ONION_SCHEME,
+  REDEMPTION_ENDPOINTS
 } from './scripts/config.js'
 
 import {
   genTokens,
   setPPHeaders,
+  forceLoadNextToken,
 } from './scripts/generation_and_redemption.js';
 
 import {
@@ -62,6 +64,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   } else if (message == "onion_set_new_search_token") {
     // the redirector was invoked, to be sure load a new token
     await setPPHeaders(`${ONION_SCHEME}://${ONION_DOMAIN_PORT}/search`)
+  } else if (message == "force_load_next_token") {
+    for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
+      let endpoint = REDEMPTION_ENDPOINTS[i];
+      await forceLoadNextToken(endpoint);
+    }
   } else {
     await logError(UI_COMMAND_NOT_RECOGNIZED_ERROR);
   }

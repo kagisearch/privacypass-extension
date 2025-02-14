@@ -100,6 +100,20 @@ async function loadNextToken(endpoint) {
     }
 }
 
+async function forceLoadNextToken(endpoint) {
+    const { enabled } = await browser.storage.local.get({ 'enabled': false });
+    if (enabled) {
+        // extension is enabled, simply call loadNextToken
+        await setPPHeaders(endpoint);
+    } else {
+        // extension is disabled, hence next token will be the last one in the ready_tokens list
+        let { ready_tokens } = await chrome.storage.local.get({ 'ready_tokens': [] })
+        // new_ready_tokens = ready_tokens[:-1]
+        const new_ready_tokens = ready_tokens.splice(0, ready_tokens.length-1)
+        await chrome.storage.local.set({ 'ready_tokens': new_ready_tokens });
+    }
+}
+
 async function genTokens() {
     if (VERBOSE) {
         console.log('genTokens')
@@ -157,6 +171,8 @@ async function unsetPPHeaders(endpoint) {
 async function setPPHeadersListener(details) {
     if (VERBOSE) {
         console.log(`setPPHeadersListener: ${details.statusCode} ${details.url}`)
+        const remiaining_tokens = await countTokens();
+        console.log(`remaining tokens: ${remiaining_tokens}`)
     }
     const url = new URL(details.url);
     const scheme_domain_port = url.origin;
@@ -169,5 +185,6 @@ export {
     setPPHeaders,
     unsetPPHeaders,
     setPPHeadersListener,
-    genTokens
+    genTokens,
+    forceLoadNextToken
 };
