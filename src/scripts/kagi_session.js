@@ -3,6 +3,10 @@ import {
   NO_COOKIE_JAR_ACCESS
 } from './errors.js'
 
+import {
+  STAGING
+} from './config.js'
+
 /*
  * Attempts to grab sessions from existing Kagi windows.
  */
@@ -13,9 +17,11 @@ async function get_kagi_session() {
   let failed_to_read_cookie_jar = false;
   let cookie = false;
   try {
+    let cookie_url = STAGING ? 'https://stage.kagi.com' : 'https://kagi.com';
+    let cookie_name = STAGING ? 'kagi_session_stage': 'kagi_session';
     cookie = await browser.cookies.get({
-      url: 'https://kagi.com',
-      name: 'kagi_session',
+      url: cookie_url,
+      name: cookie_name,
     });
   } catch (ex) {
     failed_to_read_cookie_jar = true;
