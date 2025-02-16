@@ -2,6 +2,9 @@ import {
   clearState
 } from './clear.js'
 
+import {
+  VERBOSE
+} from '../scripts/config.js'
 
 // ----- generate tokens
 
@@ -12,6 +15,7 @@ const savesessioncookiebtn = document.querySelector("#kagipp-save-session-cookie
 const savesessioncookiecheck = document.querySelector("#kagipp-save-session-cookie-check")
 const discardtokenbtn = document.querySelector("#kagipp-discard-current-token")
 const discardtokencheck = document.querySelector("#kagipp-discard-current-token-check")
+const exportdebugbtn = document.querySelector("#kagipp-export-debug-log")
 
 async function generate_tokens() {
   // attempt to generate tokens
@@ -69,4 +73,29 @@ if (sessioncookieinp && savesessioncookiebtn && savesessioncookiecheck) {
   const { kagi_session } = await browser.storage.local.get({ "kagi_session": "" })
   sessioncookieinp.value = kagi_session
   savesessioncookiebtn.addEventListener("click", save_session_cookie_value)
+}
+
+async function export_debug_log() {
+  const { log } = await browser.storage.local.get({ 'log': [] });
+  const log_txt = JSON.stringify(log);
+  const filename = "debug_log.txt"
+  const inputblob = new File([log_txt], filename, {
+    type: "text/plain"
+  });
+  const url = URL.createObjectURL(inputblob);
+  var link = document.createElement("a"); // Or maybe get it from the current document
+  link.href = url;
+  link.download = filename
+  link.textContent = "download"
+  link.style.display = "none"
+  document.body.appendChild(link); // Or append it whereever you want
+  link.click()
+  link.remove()
+}
+
+if (exportdebugbtn) {
+  if (VERBOSE) {
+    exportdebugbtn.style.display = "block"
+    exportdebugbtn.addEventListener("click", export_debug_log)
+  }
 }

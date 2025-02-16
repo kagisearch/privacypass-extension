@@ -41,26 +41,32 @@ import {
     sendPPModeStatus,
 } from './communication_with_main_extension.js'
 
+import {
+    debug_log
+} from './debug_log.js'
+
 async function checkingDoubleSpendListener(details) {
+    const url = new URL(details.url);
+    const scheme_domain_port = url.origin;
+    const pathname = url.pathname; // comes with a leading /
+    const endpoint = (pathname == "/") ? `${scheme_domain_port}${pathname}|` : `${scheme_domain_port}${pathname}`;
     if (VERBOSE) {
-        console.log(`checkingDoubleSpendListener: ${details.statusCode} ${details.url}`)
+        debug_log(`checkingDoubleSpendListener: ${details.statusCode} ${endpoint}`)
     }
     if (details.statusCode == 401) {
         // unauthorized, likely it's a doublespend
-        const url = new URL(details.url);
-        const scheme_domain_port = url.origin;
-        const pathname = url.pathname; // comes with a leading /
-        const endpoint = (pathname == "/") ? `${scheme_domain_port}${pathname}|` : `${scheme_domain_port}${pathname}`;
         if (VERBOSE) {
-            console.log(`> loading a new token for ${endpoint}`)
+            debug_log(`> loading a new token for ${endpoint}`)
         }
         await setPPHeaders(endpoint);
+    } else {
+        debug_log(`> ok loading ${endpoint}`)
     }
 }
 
 async function setEnabled() {
     if (VERBOSE) {
-        console.log("setEnabled")
+        debug_log("setEnabled")
     }
     // check if the user has no tokens and will be unable to generate more
     const n_tokens = await countTokens();
@@ -103,7 +109,7 @@ async function setEnabled() {
 
 async function setDisabled() {
     if (VERBOSE) {
-        console.log("setDisabled")
+        debug_log("setDisabled")
     }
     await unsetAntiFingerprintingRules();
     await unsetLocaRedirectorHeader();

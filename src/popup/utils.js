@@ -1,5 +1,9 @@
 // ---- error reporting
 
+import {
+  debug_log
+} from '../scripts/debug_log.js';
+
 function time() {
   return new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]
 }
@@ -12,7 +16,7 @@ async function logStatus(msg, type) {
 }
 
 async function logError(err) {
-  console.log(`Error: ${err}`)
+  debug_log(`Error: ${err}`)
   logStatus(err, 'error')
 }
 

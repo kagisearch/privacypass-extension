@@ -9,16 +9,20 @@ import {
     VERBOSE
 } from './config.js'
 
+import {
+    debug_log
+} from './debug_log.js'
+
 async function sendPPModeStatus() {
     if (VERBOSE) {
-        console.log('sendPPModeStatus')
+        debug_log('sendPPModeStatus')
     }
     const { enabled } = await chrome.storage.local.get({ 'enabled': false });
     try {
         await chrome.runtime.sendMessage(KAGI_EXTENSION_ID, { 'enabled': enabled });
     } catch (ex) {
         if (VERBOSE) {
-            console.log(`Main extension not available: ${ex}`)
+            debug_log(`Main extension not available: ${ex}`)
         }
     }
 }
@@ -30,7 +34,7 @@ async function statusRequestListener(request, sender, sendResponse) {
         return;
     }
     if (VERBOSE) {
-        console.log(`message from Kagi Search extension: ${request}`)
+        debug_log(`message from Kagi Search extension: ${request}`)
     }
     const { enabled } = await chrome.storage.local.get({ 'enabled': false });
     sendResponse(enabled); // chrome
