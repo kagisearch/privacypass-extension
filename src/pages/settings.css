@@ -3,6 +3,15 @@ body {
   background-color: #FFF;
 }
 
+a {
+  color: var(--neutral-graphite-graphite-600, #707077);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--Secondary-purple-600, #6C5EDC);
+}
+
 #wrap {
   position: absolute;
   top: 0;
@@ -62,6 +71,7 @@ section .header span {
   justify-content: space-between;
   align-items: center;
   display: inline-flex;
+  gap: 16px;
 }
 
 .setting-text {
@@ -182,6 +192,10 @@ section .header span {
     background-color: #232325;
   }
 
+  a {
+    color: var(--neutral-graphite-graphite-600, #FFF);
+  }
+
   #settings-container {
     background: #232325;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 80px);
@@ -217,6 +231,11 @@ section .header span {
 
   .setting-input:focus {
     color: white;
+  }
+
+  .danger-button {
+    border-color: #FF5A0A;
+    color: #FF5A0A;
   }
 
   .line {
