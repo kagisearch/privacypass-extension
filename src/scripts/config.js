@@ -118,7 +118,7 @@ export {
 }
 
 // token generation settings
-export const TOKENS_TO_STASH = 500;
+export const TOKENS_TO_STASH = 300;
 export const MAX_TOKENS = 2000;
 export const LOW_TOKEN_COUNT = 50; // if available tokens below this threshold, show counts
 
