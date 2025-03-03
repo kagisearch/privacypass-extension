@@ -1,5 +1,6 @@
 import {
-    REDEMPTION_ENDPOINTS
+    REDEMPTION_ENDPOINTS,
+    STAGING
 } from './config.js';
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -15,7 +16,7 @@ const REFERER_EQUIVALENT_NON_SAFARI_HEADERS = {
 export const REFERER_RULESET = isSafari ? REFERER_EQUIVALENT_HEADERS : Object.assign({}, REFERER_EQUIVALENT_HEADERS, REFERER_EQUIVALENT_NON_SAFARI_HEADERS);
 export const REFERER_RULES_OFFSET = 10;
 
-const UNIVERSAL_DEANONYMIZING_HEADERS = {
+let UNIVERSAL_DEANONYMIZING_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/20100101 Firefox/128.0",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", // from Safari, Tor Browser allows "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Referer": false,
@@ -33,6 +34,11 @@ const UNIVERSAL_DEANONYMIZING_HEADERS = {
     // "Cache-Control": "max-age=0" // brave on normal search
     // "Cache-Control": false
 };
+
+if (STAGING) {
+    // testing and debugging on staging requires some cookies
+    delete UNIVERSAL_DEANONYMIZING_HEADERS['Cookie'];
+}
 
 // The following headers cause an error if modified in Safari
 const NON_SAFARI_DEANONYMISING_HEADERS = {
@@ -65,6 +71,7 @@ export {
     HTTP_AUTHORIZATION_ID,
     NO_TOKEN_REDIRECT_ID
 };
+export const INVALID_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/invalid-token.html");
 export const NO_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/out-of-tokens.html");
 export const LOCAL_REDIRECTOR_URL = browser.runtime.getURL("pages/redirector.html");
 export const LOCAL_REDIRECTOR_ID = 2;

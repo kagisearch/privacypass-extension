@@ -44,5 +44,5 @@ if (onion) {
 
 // set a small delay to let the new token to be loaded
 setTimeout(() => {
-    window.location.replace(`${endpoint}?q=${$_GET['q']}`);
+    window.location.replace(encodeURI(`${endpoint}?q=${$_GET['q']}`));
 }, 100)

@@ -1,6 +1,20 @@
 
 # Change Log
 
+## [1.0.4] - 2025-02-17
+
+### Added
+
+- Dev feature: added support for staging environment.
+
+### Changed
+
+### Fixed
+
+- After version update, extension toolbar icon was inconsistent (reset to gray even if enabled)
+- Showing correct error message when hitting error 429 during token generation.
+- When searching from Firefox search bar, fixed diacritics getting garbled.
+
 ## [1.0.3] - 2025-02-14
 
 ### Added
