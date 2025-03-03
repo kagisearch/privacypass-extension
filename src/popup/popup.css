@@ -90,7 +90,6 @@ body {
 }
 
 .tokens-stash {
-  color: #000000;
   text-align: left;
   font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
   font-size: var(--paragraph-2-font-size, 16px);
@@ -270,7 +269,6 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
 
 #available-tokens-count {
   padding-right: 6pt;
-  color: #000000;
   text-align: right;
   font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
   font-size: var(--paragraph-2-font-size, 16px);
@@ -360,7 +358,7 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
 
 /* dark mode */
 @media (prefers-color-scheme: dark) {
-  .anonymise-search2, #status-div {
+  .anonymise-search, .anonymise-search2, #status-div {
     color: #F5F5F5;
   }
   body, .popup {

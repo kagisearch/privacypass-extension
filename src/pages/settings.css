@@ -27,6 +27,13 @@ a:hover {
   margin: 16pt 32pt;
 }
 
+#kagi-logo {
+  background-color: black;
+  mask: url(../images/kagi.svg) no-repeat center;
+  min-width: 80px;
+  min-height: 42px;
+}
+
 #settings-container {
   background-color: #FFF;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 80px);
@@ -194,6 +201,10 @@ section .header span {
 
   a {
     color: var(--neutral-graphite-graphite-600, #FFF);
+  }
+
+  #kagi-logo {
+    background-color: #F5F5F5;
   }
 
   #settings-container {
