@@ -29,10 +29,12 @@ if (generatebtn) {
 async function discard_current_token() {
   browser.runtime.sendMessage('force_load_next_token');
 
-  discardtokencheck.style.display = "inline";
-  setTimeout(() => {
-    discardtokencheck.style.display = "none";
-  }, 1000)
+  if (discardtokencheck) {
+    discardtokencheck.style.display = "inline";
+    setTimeout(() => {
+      discardtokencheck.style.display = "none";
+    }, 1000)
+  }
 }
 
 if (discardtokenbtn) {
@@ -59,13 +61,15 @@ async function save_session_cookie_value() {
 
   await browser.storage.local.set({ "kagi_session": token })
 
-  savesessioncookiecheck.style.display = "inline";
-  setTimeout(() => {
-    savesessioncookiecheck.style.display = "none";
-  }, 1000)
+  if (savesessioncookiecheck) {
+    savesessioncookiecheck.style.display = "inline";
+    setTimeout(() => {
+      savesessioncookiecheck.style.display = "none";
+    }, 1000)
+  }
 }
 
-if (sessioncookieinp && savesessioncookiebtn && savesessioncookiecheck) {
+if (sessioncookieinp && savesessioncookiebtn) {
   const { kagi_session } = await browser.storage.local.get({ "kagi_session": "" })
   sessioncookieinp.value = kagi_session
   savesessioncookiebtn.addEventListener("click", save_session_cookie_value)
