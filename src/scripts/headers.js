@@ -23,6 +23,7 @@ import {
     ACCEPT_TRANSLATE_JSON_OFFSET,
     ACCEPT_QUICK_ANSWER_OFFSET,
     ACCEPT_QUICK_ANSWER_DOC_OFFSET,
+    ACCEPT_TRANSLATE_TURSNTILE_OFFSET,
     ANONYMIZING_RULES_OFFSET,
     ANONYMIZING_RULESET,
     REFERER_RULES_OFFSET,
@@ -197,8 +198,9 @@ async function setAntiFingerprintingRules() {
     // support for quick answer and summarize document from search results page
     await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET, "mother/context", 2);
     await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET, "mother/summarize_document", 2);
-    // just for translate.kagi.com/?/translate/ to accept "application/json"
+    // just for translate.kagi.com/?/translate/ to accept "application/json" and turnstile to */*
     await setHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET, "?/translate", 2, "translate");
+    await setHeaderRuleset({ Accept: "*/*" }, ACCEPT_TRANSLATE_TURSNTILE_OFFSET, "api/auth/turnstile", 2, "translate");
 }
 
 
@@ -209,6 +211,7 @@ async function unsetAntiFingerprintingRules() {
     await unsetHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET);
     await unsetHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET);
     await unsetHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET);
+    await unsetHeaderRuleset({ Accept: "*/*" }, ACCEPT_TRANSLATE_TURSNTILE_OFFSET);
 }
 
 // --- sets HTTP Authorization header
