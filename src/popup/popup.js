@@ -135,7 +135,7 @@ if (enabled_checkbox) {
 
 (async () => {
   // try reading right away
-  await is_enabled()
+  await is_enabled();
   // add CSS transition style
   setTimeout(() => {
     let sheet = window.document.styleSheets[0];
@@ -145,7 +145,7 @@ if (enabled_checkbox) {
   setTimeout(() => {
     setIntervalAndFire(async () => {
       await is_enabled();
-    });
+    }, 1000);
   }, 1000)
 })()
 

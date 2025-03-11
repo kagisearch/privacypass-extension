@@ -1,3 +1,7 @@
+import {
+  update_extension_icon
+} from '../scripts/icon.js'
+
 const enabled_checkbox = document.querySelector("#kagipp-enabled")
 const status_message_indicator = document.querySelector("#status-message-indicator")
 
@@ -23,6 +27,7 @@ async function is_enabled() {
   const { enabled } = await browser.storage.local.get({ 'enabled': false })
   enabled_checkbox.checked = enabled;
   await update_indicator_opacity(enabled);
+  await update_extension_icon(enabled);
 }
 
 async function set_enabled() {

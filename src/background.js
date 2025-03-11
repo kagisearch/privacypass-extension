@@ -78,10 +78,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   // in install, enable the extension and fetch some tokens
+  console.log("onInstalled")
   if (details.reason == "install") {
     await chrome.storage.local.set({ 'enabled': true });
-    await setEnabled();
-    await onStart();
+    // onStart (which will be executed in approximately 1 second)
+    // will pick up 'enabled': true and use it to enable the extension
   } else if (details.reason == "update") {
     // make sure the icon extension reflects enabled/disabled
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
@@ -99,18 +100,35 @@ async function onStart() {
   if (VERBOSE) {
     console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
   }
-  // reset enabled/disabled status depending on what the user left it as
-  const { enabled } = await browser.storage.local.get({ 'enabled': false });
-  if (enabled) {
+  console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
+  // The browser is being started up, or the extension being enabled.
+  // When an extension is disabled or the browser is turned off,
+  // the declarativeNetRequest rules used to send tokens to Kagi are removed.
+  // However, there is no "onBrowserClose" or "onExtensionDisable" listener
+  // allowing us to unload the tokens that were loaded in those rules.
+  // If we don't do anything, those tokens will be lost.
+  // Hence, we have to recover them from localStorage. An easy way that does not
+  // require writing any new code is to trigger the code used when the PP mode toggle
+  // is disabled.
+  const was_enabled = (await browser.storage.local.get({ 'enabled': false }))['enabled'];
+  // emulate PP mode being disabled
+  await browser.storage.local.set({ 'enabled': false })
+  await setDisabled();
+  // if the extension was last enabled, simulate the PP mode toggle being enabled
+  if (was_enabled) {
+    await browser.storage.local.set({ 'enabled': true })
     await setEnabled();
-  } else {
-    await setDisabled();
   }
+  // refresh extension icon
+  await update_extension_icon(was_enabled);
   // when coming online, send status to Kagi Search extension
   await sendPPModeStatus();
 }
 
-browser.runtime.onStartup.addListener(onStart)
+browser.runtime.onStartup.addListener(async () => {
+  // dummy operation to make sure background.js is run
+  await browser.runtime.getPlatformInfo();
+})
 
 // -- keep background.js alive (to address non-persistency of manifest V3 extensions)
 
@@ -129,3 +147,11 @@ chrome.alarms.onAlarm.addListener(async (info) => {
     await browser.runtime.getPlatformInfo();
   }
 });
+
+// init the extension
+(async () => {
+  console.log(`background.js: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
+  setTimeout(async () => {
+    await onStart();
+  }, 1000)
+})()
