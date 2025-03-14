@@ -28,6 +28,10 @@ import {
 } from './scripts/toggle.js'
 
 import {
+  debug_log
+} from './scripts/debug_log.js'
+
+import {
   sendPPModeStatus,
   statusRequestListener
 } from './scripts/communication_with_main_extension.js'
@@ -40,7 +44,7 @@ import {
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (VERBOSE) {
-    console.log(`onMessage: ${message}`);
+    debug_log(`onMessage: ${message}`);
   }
   if (message == "enabled_changed") {
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
@@ -110,7 +114,7 @@ chrome.runtime.onMessageExternal.addListener(statusRequestListener);
 
 async function onStart() {
   if (VERBOSE) {
-    console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
+    debug_log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
   }
   // reset enabled/disabled status depending on what the user left it as
   const { enabled } = await browser.storage.local.get({ 'enabled': false });
