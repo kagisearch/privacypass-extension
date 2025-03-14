@@ -45,6 +45,10 @@ import {
     debug_log
 } from './debug_log.js'
 
+import {
+    INVALID_TOKEN_REDIRECT_URL
+} from './anonymization.js'
+
 async function checkingDoubleSpendListener(details) {
     const url = new URL(details.url);
     const scheme_domain_port = url.origin;
@@ -59,8 +63,14 @@ async function checkingDoubleSpendListener(details) {
             debug_log(`> loading a new token for ${endpoint}`)
         }
         await setPPHeaders(endpoint);
+    } else if (details.statusCode == 403) {
+        // let the user know that their tokens are stale
+        // realistically, this should only happen to devs debugging against staging
+        browser.tabs.create({url: INVALID_TOKEN_REDIRECT_URL});
     } else {
-        debug_log(`> ok loading ${endpoint}`)
+        if (VERBOSE) {
+            debug_log(`> ok loading ${endpoint}`)
+        }
     }
 }
 

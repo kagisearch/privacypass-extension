@@ -1,6 +1,6 @@
 import {
   clearState
-} from './clear.js'
+} from '../popup/clear.js'
 
 import {
   VERBOSE
@@ -33,10 +33,12 @@ if (generatebtn) {
 async function discard_current_token() {
   browser.runtime.sendMessage('force_load_next_token');
 
-  discardtokencheck.style.display = "inline";
-  setTimeout(() => {
-    discardtokencheck.style.display = "none";
-  }, 1000)
+  if (discardtokencheck) {
+    discardtokencheck.style.display = "inline";
+    setTimeout(() => {
+      discardtokencheck.style.display = "none";
+    }, 1000)
+  }
 }
 
 if (discardtokenbtn) {
@@ -45,7 +47,7 @@ if (discardtokenbtn) {
 
 async function clear_state() {
   await clearState();
-  window.close();
+  window.location.reload();
 }
 
 if (clearstatebtn) {
@@ -63,13 +65,15 @@ async function save_session_cookie_value() {
 
   await browser.storage.local.set({ "kagi_session": token })
 
-  savesessioncookiecheck.style.display = "inline";
-  setTimeout(() => {
-    savesessioncookiecheck.style.display = "none";
-  }, 1000)
+  if (savesessioncookiecheck) {
+    savesessioncookiecheck.style.display = "inline";
+    setTimeout(() => {
+      savesessioncookiecheck.style.display = "none";
+    }, 1000)
+  }
 }
 
-if (sessioncookieinp && savesessioncookiebtn && savesessioncookiecheck) {
+if (sessioncookieinp && savesessioncookiebtn) {
   const { kagi_session } = await browser.storage.local.get({ "kagi_session": "" })
   sessioncookieinp.value = kagi_session
   savesessioncookiebtn.addEventListener("click", save_session_cookie_value)
@@ -95,7 +99,9 @@ async function export_debug_log() {
 
 if (exportdebugbtn) {
   if (VERBOSE) {
-    exportdebugbtn.style.display = "block"
+    if (exportdebugbtn.parentNode) {
+      exportdebugbtn.parentNode.style.display = "inherit"
+    }
     exportdebugbtn.addEventListener("click", export_debug_log)
   }
 }

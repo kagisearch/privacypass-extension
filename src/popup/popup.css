@@ -90,7 +90,6 @@ body {
 }
 
 .tokens-stash {
-  color: #000000;
   text-align: left;
   font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
   font-size: var(--paragraph-2-font-size, 16px);
@@ -165,7 +164,7 @@ body {
 }
 
 .learn-more a {
-  color: var(--neutral-graphite-graphite-600, #707077);
+  color: #18181A;
   text-decoration: underline;
 }
 
@@ -270,7 +269,6 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
 
 #available-tokens-count {
   padding-right: 6pt;
-  color: #000000;
   text-align: right;
   font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
   font-size: var(--paragraph-2-font-size, 16px);
@@ -342,4 +340,41 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
   align-self: stretch;
   flex-shrink: 0;
   position: relative;
+}
+
+#kagi-logo {
+  background-color: black;
+  mask: url(../images/kagi.svg) no-repeat center;
+  min-width: 80px;
+  min-height: 42px;
+}
+
+#settings-icon {
+  background-color: black;
+  mask: url(../images/settings.svg) no-repeat center;
+  min-width: 24px;
+  min-height: 25px;
+}
+
+/* dark mode */
+@media (prefers-color-scheme: dark) {
+  .anonymise-search, .anonymise-search2, #status-div {
+    color: #F5F5F5;
+  }
+  body, .popup {
+    background-color: #2F2F31;
+  }
+  .button {
+    background-color: #F5F5F5;
+    color: #18181A;
+  }
+  #kagi-logo, #settings-icon {
+    background-color: #F5F5F5;
+  }
+  .learn-more {
+    color: #B7B7BB;
+  }
+  .learn-more a {
+    color: #FFFFFF;
+  }
 }

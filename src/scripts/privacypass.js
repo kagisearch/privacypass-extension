@@ -26,7 +26,8 @@ import {
   TOKEN_REQUEST_UNAUTHORIZED_ERROR,
   TOKEN_REQUEST_NO_SUBSCRIPTION_ERROR,
   TOKEN_REQUEST_UNSUPPORTED_SUBSCRIPTION_ERROR,
-  UNEXPECTED_ERROR_FMT
+  UNEXPECTED_ERROR_FMT,
+  OVER_QUOTA_ERROR
 } from './errors.js'
 
 // returns WWW-Authenticate header
@@ -108,6 +109,9 @@ async function tokenGenerationProtocol(wwwa_value, onion = false) {
       }
       // 403 FORBIDDEN {"error_code": "unsupported_subscription"}
       throw TOKEN_REQUEST_UNSUPPORTED_SUBSCRIPTION_ERROR;
+    } else if (status == 429){
+      // 429 TOO MANY REQUESTS
+      throw OVER_QUOTA_ERROR;
     } else {
       throw UNEXPECTED_ERROR_FMT.replace("{ERROR}", `[${status}: ${body}]`);
     }

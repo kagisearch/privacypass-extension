@@ -153,19 +153,12 @@ function open_settings() {
   if (!browser.windows) {
     return;
   }
-  const height = 290;
-  const width = 240;
-  const top = screen.height / 2 - height / 2;
-  const left = screen.width / 2 - width / 2;
 
-  browser.windows.create({
-    url: browser.runtime.getURL("popup/settings.html"),
-    type: "popup",
-    height: height,
-    width: width,
-    top: parseInt(top),
-    left: parseInt(left)
+  browser.tabs.create({
+    url: browser.runtime.getURL("pages/settings.html"),
   });
+
+  window.close();
 }
 
 if (settingsbtn) {
