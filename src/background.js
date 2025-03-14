@@ -83,8 +83,21 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     await setEnabled();
     await onStart();
   } else if (details.reason == "update") {
-    // make sure the icon extension reflects enabled/disabled
+    // if extension was enabled before receiving the oupdate,
+    // force a disable-enable cycle in order to apply any changes
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
+    if (enabled) {
+      await chrome.storage.local.set({ 'enabled': false });
+      await setDisabled();
+      await sendPPModeStatus();
+      await chrome.storage.local.set({ 'enabled': true });
+      await setEnabled();
+    }
+
+    // when enabled status changed, inform Kagi Search extension
+    await sendPPModeStatus();
+
+    // make sure the icon extension reflects enabled/disabled
     await update_extension_icon(enabled);
   }
 });
