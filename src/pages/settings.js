@@ -3,7 +3,7 @@ import {
 } from '../popup/clear.js'
 
 import {
-  VERBOSE
+  DEBUG_LOG_ACTIVITY
 } from '../scripts/config.js'
 
 // ----- generate tokens
@@ -98,7 +98,7 @@ async function export_debug_log() {
 }
 
 if (exportdebugbtn) {
-  if (VERBOSE) {
+  if (DEBUG_LOG_ACTIVITY) {
     if (exportdebugbtn.parentNode) {
       exportdebugbtn.parentNode.style.display = "inherit"
     }
