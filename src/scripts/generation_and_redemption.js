@@ -18,6 +18,10 @@ import {
 } from "../popup/utils.js";
 
 import {
+    debug_log
+} from './debug_log.js'
+
+import {
     countTokens,
     beginningOfPriorEpoch
 } from './manage_tokens.js'
@@ -35,7 +39,7 @@ import {
 
 async function unloadNextToken(endpoint) {
     if (VERBOSE) {
-        // console.log(`unloadNextToken: ${endpoint}`)
+        // debug_log(`unloadNextToken: ${endpoint}`)
     }
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
     if (enabled) {
@@ -54,7 +58,7 @@ async function unloadNextToken(endpoint) {
 
 async function loadNextToken(endpoint) {
     if (VERBOSE) {
-        console.log(`loadNextToken: ${endpoint}`)
+        debug_log(`loadNextToken: ${endpoint}`)
     }
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
     if (!enabled) {
@@ -116,7 +120,7 @@ async function forceLoadNextToken(endpoint) {
 
 async function genTokens() {
     if (VERBOSE) {
-        console.log('genTokens')
+        debug_log('genTokens')
     }
     await logStatus("generating new tokens", 'wait')
     // try to fetch the tokens via .onion domain
@@ -151,7 +155,7 @@ async function genTokens() {
 
 async function setPPHeaders(endpoint) {
     if (VERBOSE) {
-        console.log(`setPPHeaders: ${endpoint}`)
+        debug_log(`setPPHeaders: ${endpoint}`)
     }
     try {
         await loadNextToken(endpoint);
@@ -163,16 +167,16 @@ async function setPPHeaders(endpoint) {
 
 async function unsetPPHeaders(endpoint) {
     if (VERBOSE) {
-        console.log(`unsetPPHeaders: ${endpoint}`)
+        debug_log(`unsetPPHeaders: ${endpoint}`)
     }
     await unloadNextToken(endpoint);
 }
 
 async function setPPHeadersListener(details) {
     if (VERBOSE) {
-        console.log(`setPPHeadersListener: ${details.statusCode} ${details.url}`)
+        debug_log(`setPPHeadersListener: ${details.statusCode} ${details.url}`)
         const remiaining_tokens = await countTokens();
-        console.log(`remaining tokens: ${remiaining_tokens}`)
+        debug_log(`remaining tokens: ${remiaining_tokens}`)
     }
     const url = new URL(details.url);
     const scheme_domain_port = url.origin;

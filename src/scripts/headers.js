@@ -46,6 +46,9 @@ import {
     DOMAIN
 } from './config.js'
 
+import {
+    debug_log
+} from './debug_log.js'
 
 // --- general utilities
 
@@ -140,7 +143,7 @@ function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriori
 async function setHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriority = 1, subDomain = "") {
     const rules = compileHeaderRuleset(ruleset, offset, ruleEndpointPath, rulePriority, subDomain);
     if (VERBOSE) {
-        console.log(`setHeaderRuleset: ${rules}`)
+        debug_log(`setHeaderRuleset: ${rules}`)
     }
     await browser.declarativeNetRequest.updateDynamicRules(rules)
 }
@@ -148,7 +151,7 @@ async function setHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePrio
 async function unsetHeaderRuleset(ruleset, offset) {
     let rule_ids = compileHeaderRuleset(ruleset, offset).removeRuleIds;
     if (VERBOSE) {
-        console.log(`unsetHeaderRuleset: ${rule_ids}`);
+        debug_log(`unsetHeaderRuleset: ${rule_ids}`);
     }
     await chrome.declarativeNetRequest.updateDynamicRules({
         addRules: [],
@@ -175,11 +178,11 @@ async function unsetRefererRules() {
 
 async function selfRemovingUnsetRefererHeadersListener(details) {
     if (VERBOSE) {
-        console.log(`selfRemovingUnsetRefererHeadersListener: ${details.url}`)
+        debug_log(`selfRemovingUnsetRefererHeadersListener`)
     }
     if (!browser.webRequest.onCompleted.hasListener(selfRemovingUnsetRefererHeadersListener)) {
         if (VERBOSE) {
-            console.log(`selfRemovingUnsetRefererHeadersListener: no prior listener, doing nothing`)
+            debug_log(`selfRemovingUnsetRefererHeadersListener: no prior listener, doing nothing`)
         }
         return;
     }
@@ -237,7 +240,7 @@ function compileHTTPAuthorizationRuleset(endpoint, token_tuple) {
 
 async function setLocaRedirectorHeader() {
     if (VERBOSE) {
-        console.log(`setLocaRedirectorHeader`)
+        debug_log(`setLocaRedirectorHeader`)
     }
     // requests with `token=...` as a GET variable (ie, from session link / search bar main without extension)
     // search without the redirect rule results in
@@ -292,7 +295,7 @@ async function setLocaRedirectorHeader() {
 
 async function unsetLocaRedirectorHeader() {
     if (VERBOSE) {
-        console.log("unsetLocaRedirectorHeader");
+        debug_log("unsetLocaRedirectorHeader");
     }
     await chrome.declarativeNetRequest.updateDynamicRules({
         addRules: [],
@@ -302,7 +305,7 @@ async function unsetLocaRedirectorHeader() {
 
 async function setAuthorizationHeader(endpoint, token_tuple) {
     if (VERBOSE) {
-        console.log(`[${endpoint}] ${token_tuple[0].substring(0, 32)}`)
+        debug_log(`[${endpoint}] ${token_tuple[0].substring(0, 32)}`)
     }
     await unsetNoTokensRedirect(endpoint);
     const rules = compileHTTPAuthorizationRuleset(endpoint, token_tuple);
@@ -317,7 +320,7 @@ async function unsetAuthorizationHeader(endpoint) {
     await unsetNoTokensRedirect(endpoint);
     let rule_ids = compileHTTPAuthorizationRuleset(endpoint, ["placeholder", 0]).removeRuleIds;
     if (VERBOSE) {
-        // console.log(`unsetAuthorizationHeader: ${rule_ids} ${endpoint}`);
+        // debug_log(`unsetAuthorizationHeader: ${rule_ids} ${endpoint}`);
     }
     await chrome.declarativeNetRequest.updateDynamicRules({
         addRules: [],
@@ -336,7 +339,7 @@ async function unsetAuthorizationHeader(endpoint) {
 }
 
 async function setNoTokensRedirect(endpoint) {
-    console.log(`setNoTokensRedirect: ${endpoint}`);
+    debug_log(`setNoTokensRedirect: ${endpoint}`);
     let resourceTypes = ["main_frame", "sub_frame", "xmlhttprequest", "csp_report", "font", "image", "media", "object", "other", "ping", "script", "stylesheet", "websocket"];
     if (IS_FIREFOX) {
         resourceTypes = resourceTypes.concat(["beacon", "imageset", "object_subrequest", "speculative", "web_manifest", "xml_dtd", "xslt"])
@@ -360,7 +363,7 @@ async function setNoTokensRedirect(endpoint) {
 
 async function unsetNoTokensRedirect(endpoint) {
     if (VERBOSE) {
-        // console.log(`unsetNoTokensRedirect: ${endpoint}`)
+        // debug_log(`unsetNoTokensRedirect: ${endpoint}`)
     }
     await browser.declarativeNetRequest.updateDynamicRules({
         addRules: [], removeRuleIds: [NO_TOKEN_REDIRECT_ID[endpoint]]

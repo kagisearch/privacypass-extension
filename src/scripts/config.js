@@ -6,9 +6,12 @@ export const IS_FIREFOX = (typeof browser.runtime.getBrowserInfo === 'function')
 
 // debug settings
 export const STAGING = false;
-export const VERBOSE = false;
 export const GEN_TOKENS_ON_LOW_COUNT = true;
 export const GEN_TOKENS_ON_ZERO_COUNT = true;
+// only set DEBUG_LOG_ACTIVITY to true if
+// debugging a specific issue
+export const DEBUG_LOG_ACTIVITY = false;
+export const VERBOSE = DEBUG_LOG_ACTIVITY || false;
 
 // endpoints
 export const SCHEME = "https"

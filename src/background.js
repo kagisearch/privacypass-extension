@@ -28,6 +28,10 @@ import {
 } from './scripts/toggle.js'
 
 import {
+  debug_log
+} from './scripts/debug_log.js'
+
+import {
   sendPPModeStatus,
   statusRequestListener
 } from './scripts/communication_with_main_extension.js'
@@ -40,7 +44,7 @@ import {
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (VERBOSE) {
-    console.log(`onMessage: ${message}`);
+    debug_log(`onMessage: ${message}`);
   }
   if (message == "enabled_changed") {
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
@@ -84,8 +88,21 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     // onStart (which will be executed in approximately 1 second)
     // will pick up 'enabled': true and use it to enable the extension
   } else if (details.reason == "update") {
-    // make sure the icon extension reflects enabled/disabled
+    // if extension was enabled before receiving the oupdate,
+    // force a disable-enable cycle in order to apply any changes
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
+    if (enabled) {
+      await chrome.storage.local.set({ 'enabled': false });
+      await setDisabled();
+      await sendPPModeStatus();
+      await chrome.storage.local.set({ 'enabled': true });
+      await setEnabled();
+    }
+
+    // when enabled status changed, inform Kagi Search extension
+    await sendPPModeStatus();
+
+    // make sure the icon extension reflects enabled/disabled
     await update_extension_icon(enabled);
   }
 });
@@ -98,7 +115,7 @@ chrome.runtime.onMessageExternal.addListener(statusRequestListener);
 
 async function onStart() {
   if (VERBOSE) {
-    console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
+    debug_log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
   }
   console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
   // The browser is being started up, or the extension being enabled.

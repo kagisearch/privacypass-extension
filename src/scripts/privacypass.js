@@ -14,6 +14,10 @@ import {
 } from './config.js'
 
 import {
+  debug_log
+} from './debug_log.js'
+
+import {
   get_kagi_session
 } from './kagi_session.js'
 
@@ -29,7 +33,7 @@ import {
 // returns WWW-Authenticate header
 async function getWWWAuthenticateHeader(onion = false) {
   if (VERBOSE) {
-    console.log(`getWWWAuthenticateHeader: onion = ${onion}`)
+    debug_log(`getWWWAuthenticateHeader: onion = ${onion}`)
   }
   // get WWW-Authenticate HTTP header value
   let origin_wwwa_value = "";
@@ -54,7 +58,7 @@ async function getWWWAuthenticateHeader(onion = false) {
 // performs the token generation protocol
 async function tokenGenerationProtocol(wwwa_value, onion = false) {
   if (VERBOSE) {
-    console.log(`tokenGenerationProtocol: ${wwwa_value}, onion = ${onion}`)
+    debug_log(`tokenGenerationProtocol: ${wwwa_value}, onion = ${onion}`)
   }
   const nr = TOKENS_TO_STASH;
   const endpoint = onion ? ONION_ISSUER_REQUEST_ENDPOINT : ISSUER_REQUEST_ENDPOINT;
@@ -125,7 +129,7 @@ async function tokenGenerationProtocol(wwwa_value, onion = false) {
   token_finalization_delay = Date.now() - token_finalization_delay;
   if (VERBOSE) {
     const total_runtime = token_request_delay + token_finalization_delay;
-    console.log(`> Runtime for generationg ${TOKENS_TO_STASH} tokens: ${total_runtime}`);
+    debug_log(`> Runtime for generationg ${TOKENS_TO_STASH} tokens: ${total_runtime}`);
   }
   return tokens;
 }
