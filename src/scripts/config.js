@@ -40,13 +40,13 @@ const REDEMPTION_SERVICES = [
 ]
 let REDEMPTION_ENDPOINTS = [
     `${SCHEME}://${DOMAIN_PORT}/|`,
-    `${SCHEME}://${DOMAIN_PORT}/html`,
+    `${SCHEME}://${DOMAIN_PORT}/html|`,
     `${SCHEME}://${DOMAIN_PORT}/settings`,
     `${SCHEME}://${DOMAIN_PORT}/api/quick_settings/landing`,
     `${SCHEME}://${DOMAIN_PORT}/mother/context`,
     `${SCHEME}://${DOMAIN_PORT}/mother/summarize_document`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/|`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html`,
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html|`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/settings`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/landing`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/context`,
@@ -54,7 +54,7 @@ let REDEMPTION_ENDPOINTS = [
 ]
 if (STAGING) {
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/|`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/html`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/html|`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/settings`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/api/quick_settings/landing`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/context`)
@@ -108,7 +108,7 @@ export {
 let WEBREQUEST_REDEMPTION_ENDPOINTS = []
 for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
     let endpoint = REDEMPTION_ENDPOINTS[i];
-    if (endpoint.endsWith('/|')) {
+    if (endpoint.endsWith('|')) {
          // webRequest does not recognize urlFilter's |
          // so we remove the trailing |
         endpoint = endpoint.substring(0, endpoint.length-1)

@@ -24,6 +24,8 @@ import {
     ACCEPT_QUICK_ANSWER_OFFSET,
     ACCEPT_QUICK_ANSWER_DOC_OFFSET,
     ACCEPT_TRANSLATE_TURSNTILE_OFFSET,
+    KAGI_HTML_SLASH_REDIRECT,
+    ONION_HTML_SLASH_REDIRECT,
     ANONYMIZING_RULES_OFFSET,
     ANONYMIZING_RULESET,
     REFERER_RULES_OFFSET,
@@ -303,6 +305,54 @@ async function unsetLocaRedirectorHeader() {
     });
 }
 
+async function setHTMLIndexRedirector() {
+    if (VERBOSE) {
+        debug_log(`setHTMLIndexRedirector`)
+    }
+    const rules = {
+        addRules: [{
+            id: KAGI_HTML_SLASH_REDIRECT,
+            priority: 1,
+            condition: {
+                urlFilter: `||${DOMAIN_PORT}/html/|`,
+                resourceTypes: ["main_frame", "sub_frame"]
+            },
+            action: {
+                type: "redirect",
+                redirect: {
+                    url: `https://${DOMAIN_PORT}/html`
+                }
+            }
+        },{
+            id: ONION_HTML_SLASH_REDIRECT,
+            priority: 1,
+            condition: {
+                urlFilter: `||${ONION_DOMAIN_PORT}/html/|`,
+                resourceTypes: ["main_frame", "sub_frame"]
+            },
+            action: {
+                type: "redirect",
+                redirect: {
+                    url: `http://${ONION_DOMAIN_PORT}/html`
+                }
+            }
+        }],
+        removeRuleIds: [KAGI_HTML_SLASH_REDIRECT, ONION_HTML_SLASH_REDIRECT]
+    };
+
+    await browser.declarativeNetRequest.updateDynamicRules(rules);
+}
+
+async function unsetHTMLIndexRedirector() {
+    if (VERBOSE) {
+        debug_log("unsetHTMLIndexRedirector");
+    }
+    await chrome.declarativeNetRequest.updateDynamicRules({
+        addRules: [],
+        removeRuleIds: [KAGI_HTML_SLASH_REDIRECT, ONION_HTML_SLASH_REDIRECT]
+    });
+}
+
 async function setAuthorizationHeader(endpoint, token_tuple) {
     if (VERBOSE) {
         debug_log(`[${endpoint}] ${token_tuple[0].substring(0, 32)}`)
@@ -376,6 +426,8 @@ export {
     setAntiFingerprintingRules,
     unsetAntiFingerprintingRules,
     setNoTokensRedirect,
+    setHTMLIndexRedirector,
+    unsetHTMLIndexRedirector,
     setAuthorizationHeader,
     unsetAuthorizationHeader,
     setLocaRedirectorHeader,

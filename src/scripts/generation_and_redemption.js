@@ -181,7 +181,7 @@ async function setPPHeadersListener(details) {
     const url = new URL(details.url);
     const scheme_domain_port = url.origin;
     const pathname = url.pathname; // comes with a leading /
-    const endpoint = (pathname == "/") ? `${scheme_domain_port}${pathname}|` : `${scheme_domain_port}${pathname}`;
+    const endpoint = (pathname == "/" || pathname.endsWith('/html')) ? `${scheme_domain_port}${pathname}|` : `${scheme_domain_port}${pathname}`;
     await setPPHeaders(endpoint);
 }
 
