@@ -1,6 +1,27 @@
 
 # Change Log
 
+## [1.0.5] - 2025-03-24
+
+### Added
+
+- Dark mode theme.
+- If user stumbles upon a double-spend error in an isolated manner, the extension will now try loading the results using a new token, instead of just failing. If failure repeats, then an error message is displayed.
+- More (partial) support for Kagi translate.
+- Better support for manual debugging.
+
+### Changed
+
+- Setting now open on a new tab, rather than on a small popup. New icon and descriptions are in place.
+- Only 300 tokens are now generated per round. This increases the number of generation interactions to 7 per month.
+- Changes to Privacy Pass extension rules are now automatically loaded when the extension is updated, rather than requiring manual activation.
+
+### Fixed
+
+- Major bug in extensions that was causing unspent tokens to be discarded when closing the browser.
+- Resolved confusion in support rules for kagi.com/html vs kagi.com/html/search.
+- Settings popup being hidden: resolved by moving settings to new tab.
+
 ## [1.0.4] - 2025-02-17
 
 ### Added
