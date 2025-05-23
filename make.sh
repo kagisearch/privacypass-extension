@@ -1,4 +1,8 @@
+#!/usr/bin/env bash
+
 DEBUG=$1
+
+set -xeou pipefail
 
 rm -rf build
 mkdir -p build/chrome
