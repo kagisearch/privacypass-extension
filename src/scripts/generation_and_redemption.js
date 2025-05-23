@@ -113,7 +113,7 @@ async function forceLoadNextToken(endpoint) {
         // extension is disabled, hence next token will be the last one in the ready_tokens list
         let { ready_tokens } = await chrome.storage.local.get({ 'ready_tokens': [] })
         // new_ready_tokens = ready_tokens[:-1]
-        const new_ready_tokens = ready_tokens.splice(0, ready_tokens.length-1)
+        const new_ready_tokens = ready_tokens.splice(0, ready_tokens.length - 1)
         await chrome.storage.local.set({ 'ready_tokens': new_ready_tokens });
     }
 }

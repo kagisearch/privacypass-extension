@@ -82,15 +82,15 @@ async function checkingDoubleSpendListener(details) {
          * - if the last error is not very recent, then automatically reload the page
         */
         const now = (new Date()).getTime(); // unix time in milliseconds
-        const { last_double_spend } = await browser.storage.local.get({ 'last_double_spend' : 0 });
+        const { last_double_spend } = await browser.storage.local.get({ 'last_double_spend': 0 });
         const gap = now - last_double_spend;
-        await browser.storage.local.set({ 'last_double_spend' : now }); // update the last_double_spend information
+        await browser.storage.local.set({ 'last_double_spend': now }); // update the last_double_spend information
         if (gap > 60 * 1000) { // if the last seen doublespend was more than 1 minute ago
             // likely one-off double-spend, reload the current page
             if (VERBOSE) {
                 debug_log("checkingDoubleSpendListener: one-off double-spend, reloading");
             }
-            const active_tabs_cur_window =  await chrome.tabs.query({active: true, currentWindow: true});
+            const active_tabs_cur_window = await chrome.tabs.query({ active: true, currentWindow: true });
             const cur_tab = active_tabs_cur_window[0];
             if (cur_tab && cur_tab.id && cur_tab.id == details.tabId) {
                 await browser.tabs.reload(details.tabId, { bypassCache: true });
@@ -103,7 +103,7 @@ async function checkingDoubleSpendListener(details) {
     } else if (details.statusCode == 403) {
         // let the user know that their tokens are stale
         // realistically, this should only happen to devs debugging against staging
-        browser.tabs.create({url: INVALID_TOKEN_REDIRECT_URL});
+        browser.tabs.create({ url: INVALID_TOKEN_REDIRECT_URL });
     } else {
         if (VERBOSE) {
             debug_log(`> ok loading ${endpoint}`)

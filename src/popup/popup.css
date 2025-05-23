@@ -358,22 +358,32 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
 
 /* dark mode */
 @media (prefers-color-scheme: dark) {
-  .anonymise-search, .anonymise-search2, #status-div {
+
+  .anonymise-search,
+  .anonymise-search2,
+  #status-div {
     color: #F5F5F5;
   }
-  body, .popup {
+
+  body,
+  .popup {
     background-color: #2F2F31;
   }
+
   .button {
     background-color: #F5F5F5;
     color: #18181A;
   }
-  #kagi-logo, #settings-icon {
+
+  #kagi-logo,
+  #settings-icon {
     background-color: #F5F5F5;
   }
+
   .learn-more {
     color: #B7B7BB;
   }
+
   .learn-more a {
     color: #FFFFFF;
   }

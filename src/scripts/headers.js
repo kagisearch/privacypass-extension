@@ -117,8 +117,8 @@ function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriori
     let nrules = offset; // rule separation
     const full_domain_port = (subDomain != "") ? `${subDomain}.${DOMAIN_PORT}` : DOMAIN_PORT;
     const full_onion_domain_port = (subDomain != "") ? `${subDomain}.${ONION_DOMAIN_PORT}` : ONION_DOMAIN_PORT;
-     // note, using ||kagi.com will cover subdomains such as translate.kagi.com. this is useful for blanket rules such as anonymisation.
-     // subdomain-specific rules should pass subDomain instead
+    // note, using ||kagi.com will cover subdomains such as translate.kagi.com. this is useful for blanket rules such as anonymisation.
+    // subdomain-specific rules should pass subDomain instead
     const endpoint = (ruleEndpointPath != "") ? `||${full_domain_port}/${ruleEndpointPath}` : `||${full_domain_port}/`;
     const onion_endpoint = (ruleEndpointPath != "") ? `||${full_onion_domain_port}/${ruleEndpointPath}` : `||${full_onion_domain_port}/`;
 
@@ -323,7 +323,7 @@ async function setHTMLIndexRedirector() {
                     url: `https://${DOMAIN_PORT}/html`
                 }
             }
-        },{
+        }, {
             id: ONION_HTML_SLASH_REDIRECT,
             priority: 1,
             condition: {
