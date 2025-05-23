@@ -71,7 +71,7 @@ async function loadNextToken(endpoint) {
     // beginning of prior epoch
     const beginning_prior_epoch = beginningOfPriorEpoch();
 
-    let next_token_tuple = false;
+    let next_token_tuple = null;
     if (ready_tokens.length > 0) {
         do {
             // pop the next oldest token
@@ -79,7 +79,7 @@ async function loadNextToken(endpoint) {
             if (oldest_token_date > beginning_prior_epoch) {
                 next_token_tuple = [oldest_token, oldest_token_date];
             }
-        } while (!next_token_tuple);
+        } while (!next_token_tuple && ready_tokens.length > 0);
         await chrome.storage.local.set({ "ready_tokens": ready_tokens })
     }
 
