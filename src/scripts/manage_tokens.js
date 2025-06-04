@@ -7,7 +7,7 @@ async function countTokens() {
 
 function beginningOfPriorEpoch() {
     // returns the first day of prior month
-    let epoch_beginning = new Date.now();
+    let epoch_beginning = new Date();
     // sets to last day of previous month
     epoch_beginning.setDate(0);
     // sets to first day of previous month
