@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Kagi Privacy Pass",
   "description": "Enables use of Privacy Pass to authenticate Kagi search.",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": "images/icons/disabled/icon-64.png"
@@ -30,18 +30,20 @@
   "background": {
     "page": "background.html"
   },
-  "web_accessible_resources": [{
-    "matches": [
-      "*://*.kagi.com/*",
-      "*://*.kagi2pv5bdcxxqla5itjzje2cgdccuwept5ub6patvmvn3qgmgjd6vid.onion/*",
-      "<all_urls>"
-    ],
-    "resources": [
-      "scripts/kagippjs/kagippjs.js",
-      "scripts/kagippjs/kagippjs_bg.wasm",
-      "pages/*"
-    ]
-  }],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "*://*.kagi.com/*",
+        "*://*.kagi2pv5bdcxxqla5itjzje2cgdccuwept5ub6patvmvn3qgmgjd6vid.onion/*",
+        "<all_urls>"
+      ],
+      "resources": [
+        "scripts/kagippjs/kagippjs.js",
+        "scripts/kagippjs/kagippjs_bg.wasm",
+        "pages/*"
+      ]
+    }
+  ],
   "incognito": "spanning",
   "browser_specific_settings": {
     "gecko": {

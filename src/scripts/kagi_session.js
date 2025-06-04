@@ -18,7 +18,7 @@ async function get_kagi_session() {
   let cookie = false;
   try {
     let cookie_url = STAGING ? 'https://stage.kagi.com' : 'https://kagi.com';
-    let cookie_name = STAGING ? 'kagi_session_stage': 'kagi_session';
+    let cookie_name = STAGING ? 'kagi_session_stage' : 'kagi_session';
     cookie = await browser.cookies.get({
       url: cookie_url,
       name: cookie_name,

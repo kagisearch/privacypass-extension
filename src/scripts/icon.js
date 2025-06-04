@@ -14,5 +14,5 @@ async function update_extension_icon(enabled) {
 }
 
 export {
-    update_extension_icon
+  update_extension_icon
 }

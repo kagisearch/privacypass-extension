@@ -109,7 +109,7 @@ async function tokenGenerationProtocol(wwwa_value, onion = false) {
       }
       // 403 FORBIDDEN {"error_code": "unsupported_subscription"}
       throw TOKEN_REQUEST_UNSUPPORTED_SUBSCRIPTION_ERROR;
-    } else if (status == 429){
+    } else if (status == 429) {
       // 429 TOO MANY REQUESTS
       throw OVER_QUOTA_ERROR;
     } else {

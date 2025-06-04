@@ -36,12 +36,8 @@ function flex(elem) {
   elem.style.display = "flex";
 }
 
-function show(elem, type) {
-  let display_type = "block";
-  if (type) {
-    display_type = type;
-  }
-  elem.style.display = display_type;
+function show(elem, type = "block") {
+  elem.style.display = type;
 }
 
 function hide(elem) {

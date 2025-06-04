@@ -109,9 +109,9 @@ let WEBREQUEST_REDEMPTION_ENDPOINTS = []
 for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
     let endpoint = REDEMPTION_ENDPOINTS[i];
     if (endpoint.endsWith('|')) {
-         // webRequest does not recognize urlFilter's |
-         // so we remove the trailing |
-        endpoint = endpoint.substring(0, endpoint.length-1)
+        // webRequest does not recognize urlFilter's |
+        // so we remove the trailing |
+        endpoint = endpoint.substring(0, endpoint.length - 1)
     }
     WEBREQUEST_REDEMPTION_ENDPOINTS.push(endpoint)
     WEBREQUEST_REDEMPTION_ENDPOINTS.push(`${endpoint}?*`)
