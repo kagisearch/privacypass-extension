@@ -1,6 +1,12 @@
 
 # Change Log
 
+## [1.0.6] - 2025-06-03
+
+### Fixed
+
+- Fix for loading next tokens potentially crashing.
+
 ## [1.0.5] - 2025-03-24
 
 ### Added
