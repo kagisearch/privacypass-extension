@@ -45,12 +45,16 @@ let REDEMPTION_ENDPOINTS = [
     `${SCHEME}://${DOMAIN_PORT}/api/quick_settings/landing`,
     `${SCHEME}://${DOMAIN_PORT}/mother/context`,
     `${SCHEME}://${DOMAIN_PORT}/mother/summarize_document`,
+    `${SCHEME}://${DOMAIN_PORT}/reverse/upload`,
+    `${SCHEME}://${DOMAIN_PORT}/reverse/reference`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/|`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html|`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/settings`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/landing`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/context`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/summarize_document`
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/summarize_document`,
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/reverse/upload`,
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/reverse/reference`
 ]
 if (STAGING) {
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/|`)
@@ -59,6 +63,8 @@ if (STAGING) {
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/api/quick_settings/landing`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/context`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/summarize_document`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/reverse/upload`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/reverse/reference`)
 }
 for (let i = 0; i < REDEMPTION_SERVICES.length; i++) {
     const service = REDEMPTION_SERVICES[i]
