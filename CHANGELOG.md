@@ -1,6 +1,13 @@
 
 # Change Log
 
+## [1.0.7] - 2025-06-17
+
+### Fixed
+
+- Fix for reverse image search not working
+
+
 ## [1.0.6] - 2025-06-03
 
 ### Fixed
