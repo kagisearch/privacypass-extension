@@ -2,7 +2,7 @@
 export const FAILED_LOADING_NEXT_TOKEN_ERROR = "<strong>You run out of tokens</strong><br/>Click \"Generate tokens\" to generate more.";
 
 // happens when you are over your quota and therefore generate 0 tokens
-export const OVER_QUOTA_ERROR = "<strong>Monthly token generation limit reached (8x per Account)</strong><br/>Each Kagi account is limited to generating Privacy Pass tokens up to 8x per month. If you use Privacy Pass on other devices or browsers, they may still have available tokens.";
+export const OVER_QUOTA_ERROR = "<strong>Monthly token generation limit reached (10x per Account)</strong><br/>Each Kagi account is limited to generating Privacy Pass tokens up to 10x per month. If you use Privacy Pass on other devices or browsers, they may still have available tokens.";
 
 // /pp/gettokens replies 401
 export const TOKEN_REQUEST_UNAUTHORIZED_ERROR = "<strong>Token generation unauthorized</strong><br/>Your session has expired, and Privacy Pass couldn't generate more tokens. Please sign in to Kagi and click \"Generate tokens\" to proceed.";
