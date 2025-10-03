@@ -1,12 +1,17 @@
 
 # Change Log
 
+## [1.0.8] - 2025-10-03
+
+### Changed
+
+- Update token generation error message to 10x
+
 ## [1.0.7] - 2025-06-17
 
 ### Fixed
 
 - Fix for reverse image search not working
-
 
 ## [1.0.6] - 2025-06-03
 
