@@ -52,6 +52,7 @@ let REDEMPTION_ENDPOINTS = [
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/settings`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/landing`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/context`,
+    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/_s/quick_answer`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/summarize_document`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/reverse/upload`,
     `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/reverse/reference`
@@ -62,6 +63,7 @@ if (STAGING) {
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/settings`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/api/quick_settings/landing`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/context`)
+    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/_s/quick_answer`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/summarize_document`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/reverse/upload`)
     REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/reverse/reference`)
