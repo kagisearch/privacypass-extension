@@ -35,7 +35,8 @@ import {
     LOCAL_REDIRECTOR_URL,
     LOCAL_REDIRECTOR_ID,
     HTTP_AUTHORIZATION_ID,
-    ONION_LOCAL_REDIRECTOR_ID
+    ONION_LOCAL_REDIRECTOR_ID,
+    ACCEPT_QUICK_ANSWER_NT_OFFSET
 } from "./anonymization.js";
 
 import {
@@ -195,12 +196,12 @@ async function selfRemovingUnsetRefererHeadersListener(details) {
 }
 
 // --- general deanonymising header removal
-
 async function setAntiFingerprintingRules() {
     await setHeaderRuleset(ANONYMIZING_RULESET, ANONYMIZING_RULES_OFFSET)
     // just for /socket/* endpoints, force Accept: "text/event-stream"
     await setHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET, "socket/", 2);
     // support for quick answer and summarize document from search results page
+    await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_NT_OFFSET, "_s/quick_answer", 2);
     await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET, "mother/context", 2);
     await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET, "mother/summarize_document", 2);
     // just for translate.kagi.com/?/translate/ to accept "application/json" and turnstile to */*
