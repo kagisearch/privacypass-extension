@@ -8,17 +8,12 @@ import {
 } from './scripts/icon.js'
 
 import {
-  DOMAIN_PORT,
-  ONION_DOMAIN_PORT,
   VERBOSE,
-  SCHEME,
-  ONION_SCHEME,
   REDEMPTION_ENDPOINTS
 } from './scripts/config.js'
 
 import {
   genTokens,
-  setPPHeaders,
   forceLoadNextToken,
 } from './scripts/generation_and_redemption.js';
 
@@ -62,12 +57,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       await logError(`${ex}<br/>Last attempt to generate tokens: ${time()}.`);
       return;
     }
-  } else if (message == "set_new_search_token") {
-    // the redirector was invoked, to be sure load a new token
-    await setPPHeaders(`${SCHEME}://${DOMAIN_PORT}/search`)
-  } else if (message == "onion_set_new_search_token") {
-    // the redirector was invoked, to be sure load a new token
-    await setPPHeaders(`${ONION_SCHEME}://${ONION_DOMAIN_PORT}/search`)
   } else if (message == "force_load_next_token") {
     for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
       let endpoint = REDEMPTION_ENDPOINTS[i];

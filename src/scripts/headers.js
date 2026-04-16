@@ -272,7 +272,7 @@ async function setLocaRedirectorHeader() {
             action: {
                 type: "redirect",
                 redirect: {
-                    regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3&onion=0` // remove only the `token` get variable
+                    regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3` // remove only the `token` get variable
                 }
             }
         }, {
