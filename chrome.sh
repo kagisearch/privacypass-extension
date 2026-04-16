@@ -24,7 +24,6 @@ do
   cp -r "src/$item" "$unpacked_dir"
 done
 cp "src/chrome_manifest.json" "$unpacked_dir/manifest.json"
-cp "src/popup/progress_bar_webkit.css" "$unpacked_dir/popup/progress_bar.css"
 
 if [ -z $DEBUG ];
 then

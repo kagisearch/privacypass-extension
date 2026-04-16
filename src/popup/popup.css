@@ -2,20 +2,20 @@ body {
   margin: 0;
 }
 
-.popup,
-.popup * {
+* {
   box-sizing: border-box;
 }
 
-.popup {
+body {
+  color: #000000;
+  font-family: system-ui;
+  font-size: 16px;
   background: #ffffff;
   border-radius: 8px;
-  padding: var(--radius-radius-large, 24px) var(--radius-radius-medium, 16px) 0 var(--radius-radius-medium, 16px);
+  padding: 24px 16px 0 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  align-items: flex-start;
-  justify-content: space-evenly;
   user-select: none;
   position: relative;
   width: 340px;
@@ -32,69 +32,16 @@ body {
   position: relative;
 }
 
-.group {
-  flex-shrink: 0;
-  width: 79.84px;
-  height: 41.85px;
-  position: relative;
-  overflow: visible;
-}
-
-.anonymous-search {
-  color: var(--primary-graphite, #18181a);
-  text-align: left;
-  font-family: var(--paragraph-5-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-5-font-size, 12px);
-  line-height: var(--paragraph-5-line-height, 160%);
-  font-weight: var(--paragraph-5-font-weight, 400);
-  text-decoration: underline;
-  position: relative;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--radius-radius-medium, 16px);
-  align-items: flex-start;
-  justify-content: flex-start;
-  align-self: stretch;
-  flex-shrink: 0;
-  position: relative;
-}
-
 .anonymise-search {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  align-self: stretch;
-  flex-shrink: 0;
-  position: relative;
-}
-
-.anonymise-search2 {
-  color: #000000;
-  text-align: left;
-  font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-2-font-size, 16px);
-  line-height: var(--paragraph-2-line-height, 160%);
-  font-weight: var(--paragraph-2-font-weight, 400);
-  position: relative;
 }
 
 .toggle {
   flex-shrink: 0;
   width: 48px;
   height: 24px;
-  position: relative;
-}
-
-.tokens-stash {
-  text-align: left;
-  font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-2-font-size, 16px);
-  line-height: var(--paragraph-2-line-height, 160%);
-  font-weight: var(--paragraph-2-font-weight, 400);
   position: relative;
 }
 
@@ -109,11 +56,11 @@ body {
 }
 
 .button {
-  color: var(--primary-white, #ffffff);
-  font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
-  background: var(--primary-graphite, #18181a);
+  color: #ffffff;
+  font-family: inherit;
+  background: #18181a;
   border-radius: 27px;
-  padding: 4px var(--radius-radius-large, 24px) 4px var(--radius-radius-large, 24px);
+  padding: 4px 24px 4px 24px;
   display: flex;
   flex-direction: row;
   gap: 4px;
@@ -127,40 +74,12 @@ body {
 }
 
 .button:hover {
-  background: var(--Secondary-purple-600, #6C5EDC);
-}
-
-.icon {
-  flex-shrink: 0;
-  width: 16.85px;
-  height: 16.85px;
-  position: relative;
-  overflow: visible;
-}
-
-.import-export-tokens {
-  color: var(--primary-white, #ffffff);
-  text-align: left;
-  font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-2-font-size, 16px);
-  line-height: var(--paragraph-2-line-height, 160%);
-  font-weight: var(--paragraph-2-font-weight, 400);
-  position: relative;
-}
-
-.learn-more,
-.learn-more * {
-  box-sizing: border-box;
+  background: #6C5EDC;
 }
 
 .learn-more {
-  text-align: left;
-  font-family: var(--paragraph-5-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-5-font-size, 12px);
-  line-height: var(--paragraph-5-line-height, 160%);
-  font-weight: var(--paragraph-5-font-weight, 400);
-  position: relative;
-  color: var(--neutral-graphite-graphite-600, #707077);
+  font-size: 12px;
+  color: #707077;
 }
 
 .learn-more a {
@@ -169,20 +88,11 @@ body {
 }
 
 .learn-more a:hover {
-  color: var(--Secondary-purple-600, #6C5EDC);
+  color: #6C5EDC;
 }
 
 .status-message {
-  text-align: left;
-  font-family: var(--paragraph-5-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-5-font-size, 12px);
-  line-height: var(--paragraph-5-line-height, 160%);
-  font-weight: var(--paragraph-5-font-weight, 400);
-  position: relative;
-}
-
-.settings-icon {
-  cursor: pointer;
+  font-size: 12px;
 }
 
 label.switch>input[type=checkbox] {
@@ -241,39 +151,19 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
 #low-token-area {
   display: flex;
   flex-direction: column;
-  gap: var(--radius-radius-medium, 16px);
-  align-items: flex-start;
-  justify-content: flex-start;
-  align-self: stretch;
-  flex-shrink: 0;
-  position: relative;
+  gap: 16px;
 }
 
 #status-div {
   display: flex;
   flex-direction: column;
-  gap: var(--radius-radius-medium, 16px);
-  align-items: flex-start;
-  justify-content: flex-start;
-  align-self: stretch;
-  flex-shrink: 0;
-  position: relative;
-
-  color: #000000;
+  gap: 16px;
   text-align: right;
-  font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-2-font-size, 16px);
-  line-height: var(--paragraph-2-line-height, 160%);
-  font-weight: var(--paragraph-2-font-weight, 400);
 }
 
 #available-tokens-count {
   padding-right: 6pt;
   text-align: right;
-  font-family: var(--paragraph-2-font-family, "Arial-Regular", sans-serif);
-  font-size: var(--paragraph-2-font-size, 16px);
-  line-height: var(--paragraph-2-line-height, 160%);
-  font-weight: var(--paragraph-2-font-weight, 400);
 }
 
 #status-indicator-div {
@@ -334,50 +224,32 @@ label.switch:has(input[type=checkbox]:checked + div.slider) {
 #low-token-area {
   display: flex;
   flex-direction: column;
-  gap: var(--radius-radius-medium, 16px);
-  align-items: flex-start;
-  justify-content: flex-start;
-  align-self: stretch;
-  flex-shrink: 0;
-  position: relative;
+  gap: 16px;
 }
 
 #kagi-logo {
-  background-color: black;
+  background-color: currentColor;
   mask: url(../images/kagi.svg) no-repeat center;
   min-width: 80px;
   min-height: 42px;
 }
 
 #settings-icon {
-  background-color: black;
+  background-color: currentColor;
   mask: url(../images/settings.svg) no-repeat center;
   min-width: 24px;
   min-height: 25px;
 }
 
-/* dark mode */
 @media (prefers-color-scheme: dark) {
-
-  .anonymise-search,
-  .anonymise-search2,
-  #status-div {
-    color: #F5F5F5;
-  }
-
-  body,
-  .popup {
+  body {
     background-color: #2F2F31;
+    color: #F5F5F5;
   }
 
   .button {
     background-color: #F5F5F5;
     color: #18181A;
-  }
-
-  #kagi-logo,
-  #settings-icon {
-    background-color: #F5F5F5;
   }
 
   .learn-more {

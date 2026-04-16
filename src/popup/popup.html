@@ -5,75 +5,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="popup.css">
-  <link rel="stylesheet" href="progress_bar.css">
 </head>
 
 <body>
-  <div class="popup">
-    <!-- Header -->
-    <div class="header">
-      <div id="kagi-logo"></div>
-      <div id="kagipp-settings" class="settings-icon">
-        <div id="settings-icon"></div>
-      </div>
+  <!-- Header -->
+  <div class="header">
+    <div id="kagi-logo"></div>
+    <div id="kagipp-settings" class="settings-icon">
+      <div id="settings-icon"></div>
     </div>
-    <!-- Main toggle -->
-    <div class="content">
-      <div class="anonymise-search">
-        <div class="anonymise-search2">Authenticate via Privacy Pass</div>
-        <div class="toggle">
-          <label class="switch">
-            <input id="kagipp-enabled" type="checkbox" />
-            <div class="slider"></div>
-          </label>
-        </div>
-      </div>
-    </div>
-    <div id="low-token-area">
-      <!-- Low token bar -->
-      <div id="low-token-count-div" style="width: 100%;">
-        <div class="anonymise-search">
-          <div class="tokens-stash">Remaining tokens</div>
-          <div id="available-tokens-count">-1</div>
-        </div>
-      </div>
-      <!-- Generate more tokens button -->
-      <div id="kagipp-generate-tokens-div" style="width: 100%;">
-        <div id="kagipp-generate-tokens" class="button">
-          <div class="tertiary-button">
-            <div class="tertiary">Generate tokens</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Status display component -->
-    <div id="status-div" class="status-message" style="display: block">
-      <div id="status-indicator-div">
-        <span>Status</span>
-        <div id="status-message-indicator" style="opacity: 0.5;">
-          <span id="status-message-color" class="error-color">●</span>
-          <span id="status-message-type">Error</span>
-        </div>
-      </div>
-      <div id="status-message-div">
-        <span id="status-message">
-          status_message
-        </span>
-        <div id="status-message-close"><img src="../images/close.svg" /></div>
-      </div>
-    </div>
-    <!-- Learn more spoiler -->
-    <div style="max-width: 100%;">
-      <div id="learn-more" class="learn-more">
-        Privacy Pass by Kagi.
-        <a href="https://help.kagi.com/kagi/privacy/privacy-pass.html" target="_blank" rel="noopener noreferrer">Learn
-          more</a> or visit our <a href="https://blog.kagi.com/kagi-privacy-pass#faq" target="_blank"
-          rel="noopener noreferrer">FAQ</a>
-      </div>
-    </div>
-    <!-- Unit-test debug placeholder -->
-    <div id="debug-actions"></div>
   </div>
+  <!-- Main toggle -->
+  <div class="anonymise-search">
+    Authenticate via Privacy Pass
+    <div class="toggle">
+      <label class="switch">
+        <input id="kagipp-enabled" type="checkbox" />
+        <div class="slider"></div>
+      </label>
+    </div>
+  </div>
+  <div id="low-token-area" hidden>
+    <!-- Low token bar -->
+    <div id="low-token-count-div">
+      <div class="anonymise-search">
+        <div class="tokens-stash">Remaining tokens</div>
+        <div id="available-tokens-count">-1</div>
+      </div>
+    </div>
+    <!-- Generate more tokens button -->
+    <div id="kagipp-generate-tokens-div" hidden>
+      <div id="kagipp-generate-tokens" class="button">
+        <div class="tertiary-button">
+          <div class="tertiary">Generate tokens</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Status display component -->
+  <div id="status-div" class="status-message" style="display: block">
+    <div id="status-indicator-div">
+      <span>Status</span>
+      <div id="status-message-indicator" style="opacity: 0.5;">
+        <span id="status-message-color" class="error-color">●</span>
+        <span id="status-message-type">Error</span>
+      </div>
+    </div>
+    <div id="status-message-div" hidden>
+      <span id="status-message">
+        status_message
+      </span>
+      <div id="status-message-close"><img src="../images/close.svg" /></div>
+    </div>
+  </div>
+  <!-- Learn more spoiler -->
+  <div style="max-width: 100%;">
+    <div id="learn-more" class="learn-more">
+      Privacy Pass by Kagi.
+      <a href="https://help.kagi.com/kagi/privacy/privacy-pass.html" target="_blank" rel="noopener noreferrer">Learn
+        more</a> or visit our <a href="https://blog.kagi.com/kagi-privacy-pass#faq" target="_blank"
+        rel="noopener noreferrer">FAQ</a>
+    </div>
+  </div>
+  <!-- Unit-test debug placeholder -->
+  <div id="debug-actions"></div>
   <script type="module" src="browser.js"></script>
   <script type="module" src="debug.js"></script>
   <script type="module" src="popup.js"></script>

@@ -32,21 +32,9 @@ const closeerrorbtn = document.querySelector("#status-message-close")
 
 // ---- UI utilities
 
-function flex(elem) {
-  elem.style.display = "flex";
-}
-
-function show(elem, type = "block") {
-  elem.style.display = type;
-}
-
-function hide(elem) {
-  elem.style.display = "none";
-}
-
-function setIntervalAndFire(func, interval) {
+function rerenderWhenStorageChanges(func) {
+  browser.storage.local.onChanged.addListener(func)
   func()
-  setInterval(func, interval)
 }
 
 // ---- status reporting
@@ -57,9 +45,9 @@ function display_status(status) {
     status_msg_color.className = 'error-color'
     status_msg_type.textContent = "Error"
     status_msg.innerHTML = msg;
-    show(status_msg_div)
+    status_msg_div.hidden = false;
   } else if (type == 'wait') {
-    hide(status_msg_div)
+    status_msg_div.hidden = true;
     status_msg_color.className = 'wait-color'
     status_msg_type.textContent = 'Generating new tokens'
   } else {
@@ -68,113 +56,65 @@ function display_status(status) {
 }
 
 function clear_status_msg() {
-  hide(status_msg_div)
+  status_msg_div.hidden = true;
   status_msg_color.className = "ready-color"
   status_msg_type.textContent = "Ready"
   status_msg.textContent = ""
 }
 
-setIntervalAndFire(async () => {
-  if (!browser.storage) {
-    return;
-  }
+rerenderWhenStorageChanges(async () => {
   const { status } = await browser.storage.local.get({ 'status': null })
   if (status) {
     display_status(status)
   } else {
     clear_status_msg()
   }
-}, 1000)
+});
 
 // ---- token counting
 
 function display_token_count(n_tokens) {
-  if (available_tokens_div) {
-    available_tokens_div.textContent = n_tokens;
-  }
+  available_tokens_div.textContent = n_tokens;
   if (debug_available_tokens_div) {
     debug_available_tokens_div.textContent = n_tokens;
   }
-  if (n_tokens < LOW_TOKEN_COUNT) {
-    flex(lowtokencountdiv)
-    show(gentokensbtndiv)
-  } else {
-    hide(lowtokencountdiv)
-    hide(gentokensbtndiv)
-  }
+  lowtokencountdiv.hidden = gentokensbtndiv.hidden = n_tokens >= LOW_TOKEN_COUNT;
 }
 
-async function countTokens() {
-  if (!browser.storage) {
-    return;
-  }
-  const { ready_tokens } = await browser.storage.local.get({ 'ready_tokens': [] })
-  return ready_tokens.length
-}
-
-setIntervalAndFire(async () => {
-  // preiodically check for number of available tokens
-  if (!browser.storage) {
-    return;
-  }
-  const available_tokens = await countTokens()
-  // account for tokens loaded in header
-  const { loaded_tokens } = await browser.storage.local.get({ "loaded_tokens": {} })
-  display_token_count(available_tokens + Object.keys(loaded_tokens).length)
-}, 1000)
+rerenderWhenStorageChanges(async () => {
+  const { ready_tokens, loaded_tokens } = await browser.storage.local.get({ ready_tokens: [], loaded_tokens: {} });
+  display_token_count(ready_tokens.length + Object.keys(loaded_tokens).length);
+});
 
 // ----- Enabled / Disabled toggle
 
-if (enabled_checkbox) {
-  enabled_checkbox.addEventListener("change", set_enabled)
-}
+enabled_checkbox.addEventListener("change", set_enabled)
 
-(async () => {
-  // try reading right away
+rerenderWhenStorageChanges(async () => {
   await is_enabled();
-  // add CSS transition style
-  setTimeout(() => {
-    let sheet = window.document.styleSheets[0];
-    sheet.insertRule('label.switch > div.slider { transition: all 0.3s linear; }', sheet.cssRules.length);
-  }, 300)
-  // also do a delayed check since there could be a race condition
-  setTimeout(() => {
-    setIntervalAndFire(async () => {
-      await is_enabled();
-    }, 1000);
-  }, 1000)
-})()
+});
 
-function open_settings() {
-  if (!browser.windows) {
-    return;
-  }
+// TODO(jacob): i expect this to go away soon
+// add CSS transition style
+setTimeout(() => {
+  let sheet = window.document.styleSheets[0];
+  sheet.insertRule('label.switch > div.slider { transition: all 0.3s linear; }', sheet.cssRules.length);
+}, 300)
 
+settingsbtn.addEventListener("click", () => {
   browser.tabs.create({
     url: browser.runtime.getURL("pages/settings.html"),
   });
 
   window.close();
-}
+});
 
-if (settingsbtn) {
-  settingsbtn.addEventListener("click", open_settings)
-}
+gentokensbtn.addEventListener("click", async () => {
+  // attempt to generate tokens
+  await logStatus("generating new tokens", 'wait')
+  browser.runtime.sendMessage('fetch_tokens');
+})
 
-// -- token-generation button
-
-if (gentokensbtn) {
-  gentokensbtn.addEventListener("click", async () => {
-    // attempt to generate tokens
-    await logStatus("generating new tokens", 'wait')
-    browser.runtime.sendMessage('fetch_tokens');
-  })
-}
-
-// --- close error button
-
-if (closeerrorbtn) {
-  closeerrorbtn.addEventListener("click", function () {
-    clearError();
-  })
-}
+closeerrorbtn.addEventListener("click", function () {
+  clearError();
+})

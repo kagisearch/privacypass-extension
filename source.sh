@@ -28,7 +28,6 @@ do
   cp -r "$item" "$unpacked_dir"
 done
 cp "src/firefox_manifest.json" "$unpacked_dir/src/manifest.json"
-cp "src/popup/progress_bar_moz.css" "$unpacked_dir/src/popup/progress_bar.css"
 
 inputs=(
     privacypass-lib/src
@@ -42,7 +41,7 @@ for item in ${inputs[@]}
 do
   cp -r "$item" "$unpacked_dir/privacypass-lib"
 done
-(cd "$unpacked_dir/privacypass-lib/src/" ; bash clean.sh) 
+(cd "$unpacked_dir/privacypass-lib/src/" ; bash clean.sh)
 
 if [ -z $DEBUG ];
 then
