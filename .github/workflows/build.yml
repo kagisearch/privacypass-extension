@@ -1,0 +1,22 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          curl -L -o kagippjs-wasm.zip https://github.com/kagisearch/privacypass-lib/releases/latest/download/kagippjs-wasm.zip
+          mkdir -p src/scripts/kagippjs
+          unzip -q kagippjs-wasm.zip -d src/scripts/kagippjs
+          mkdir -p build/chrome build/firefox
+          BUILDDIR=build/chrome bash chrome.sh
+          BUILDDIR=build/firefox bash firefox.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: |
+            build/chrome/*.zip
+            build/firefox/*.xpi
