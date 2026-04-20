@@ -194,38 +194,7 @@ const localRedirectorRules = {
     removeRuleIds: [LOCAL_REDIRECTOR_ID, ONION_LOCAL_REDIRECTOR_ID]
 };
 
-const htmlIndexRedirectorRules = {
-    addRules: [{
-        id: KAGI_HTML_SLASH_REDIRECT,
-        priority: 1,
-        condition: {
-            urlFilter: `||${DOMAIN_PORT}/html/|`,
-            resourceTypes: ["main_frame", "sub_frame"]
-        },
-        action: {
-            type: "redirect",
-            redirect: {
-                url: `https://${DOMAIN_PORT}/html`
-            }
-        }
-    }, {
-        id: ONION_HTML_SLASH_REDIRECT,
-        priority: 1,
-        condition: {
-            urlFilter: `||${ONION_DOMAIN_PORT}/html/|`,
-            resourceTypes: ["main_frame", "sub_frame"]
-        },
-        action: {
-            type: "redirect",
-            redirect: {
-                url: `http://${ONION_DOMAIN_PORT}/html`
-            }
-        }
-    }],
-    removeRuleIds: [KAGI_HTML_SLASH_REDIRECT, ONION_HTML_SLASH_REDIRECT]
-};
-
-const generalRules = [antiFingerprintingRules, localRedirectorRules, htmlIndexRedirectorRules].reduce(mergeRules);
+const generalRules = [antiFingerprintingRules, localRedirectorRules].reduce(mergeRules);
 
 const noTokensRedirectRule = {
     addRules: [{
