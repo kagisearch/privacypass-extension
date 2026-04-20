@@ -19,7 +19,6 @@ async function erase_tokens() {
   // remove Authorization header
   enabled_checkbox.checked = false;
   await set_enabled();
-  await browser.storage.local.remove("loaded_tokens")
 }
 
 function enable_debug_buttons() {

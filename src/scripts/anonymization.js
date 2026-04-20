@@ -1,5 +1,4 @@
 import {
-    REDEMPTION_ENDPOINTS,
     STAGING
 } from './config.js';
 
@@ -59,15 +58,7 @@ export const ACCEPT_TRANSLATE_TURSNTILE_OFFSET = 158;
 export const KAGI_HTML_SLASH_REDIRECT = 180;
 export const ONION_HTML_SLASH_REDIRECT = 182;
 
-const INITIAL_HTTP_AUTHORIZATION_ID = 200
-let HTTP_AUTHORIZATION_ID = {}
-for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
-    const endpoint = REDEMPTION_ENDPOINTS[i]
-    HTTP_AUTHORIZATION_ID[endpoint] = INITIAL_HTTP_AUTHORIZATION_ID + i
-}
-export {
-    HTTP_AUTHORIZATION_ID,
-};
+export const HTTP_AUTHORIZATION_ID = 200;
 export const INVALID_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/invalid-token.html");
 export const NO_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/out-of-tokens.html");
 export const LOCAL_REDIRECTOR_URL = browser.runtime.getURL("pages/redirector.html");

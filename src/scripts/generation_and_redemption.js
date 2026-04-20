@@ -3,7 +3,7 @@ import {
     LOW_TOKEN_COUNT,
     GEN_TOKENS_ON_LOW_COUNT,
     GEN_TOKENS_ON_ZERO_COUNT,
-    REDEMPTION_ENDPOINTS
+    REDEMPTION_ENDPOINT_RE,
 } from './config.js'
 
 import {
@@ -27,9 +27,8 @@ import {
 } from './manage_tokens.js'
 
 import {
-    authorizationRules,
-    noTokensRedirectRules,
-    mergeRules
+    authorizationRule,
+    noTokensRedirectRule,
 } from './headers.js'
 
 import {
@@ -38,54 +37,31 @@ import {
 } from './errors.js'
 
 async function loadTokensRules() {
-    const { ready_tokens, loaded_tokens } = await browser.storage.local.get({ ready_tokens: [], loaded_tokens: {} });
+    let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
     const beginning_prior_epoch = beginningOfPriorEpoch();
-    let rules = { addRules: [], removeRuleIds: [] };
-    let ranOut = false;
-
-    for (const endpoint of REDEMPTION_ENDPOINTS) {
-        const currentToken = loaded_tokens[endpoint];
-        const valid = currentToken && currentToken[1] > beginning_prior_epoch;
-        if (!valid) {
-            let next_token_tuple = null;
-            while (!next_token_tuple && ready_tokens.length > 0) {
-                const [oldest_token, oldest_token_date] = ready_tokens.pop();
-                if (oldest_token_date > beginning_prior_epoch) {
-                    next_token_tuple = [oldest_token, oldest_token_date];
-                }
-            }
-            if (next_token_tuple) {
-                loaded_tokens[endpoint] = next_token_tuple;
-            } else {
-                delete loaded_tokens[endpoint];
-                ranOut = true;
-            }
-        }
-        rules = mergeRules(rules, loaded_tokens[endpoint] ? authorizationRules(endpoint, loaded_tokens[endpoint]) : noTokensRedirectRules(endpoint));
+    while (ready_tokens.length > 0 && ready_tokens[ready_tokens.length - 1][1] <= beginning_prior_epoch) {
+        ready_tokens.pop();
     }
+    await browser.storage.local.set({ ready_tokens });
 
-    await browser.storage.local.set({ ready_tokens, loaded_tokens });
-
-    if (ranOut && GEN_TOKENS_ON_ZERO_COUNT) {
+    const active = ready_tokens[ready_tokens.length - 1];
+    if (!active && GEN_TOKENS_ON_ZERO_COUNT) {
         logError(FAILED_LOADING_NEXT_TOKEN_ERROR);
         genTokens().catch(ex => logError(`${ex}`));
     } else if (GEN_TOKENS_ON_LOW_COUNT && ready_tokens.length <= LOW_TOKEN_COUNT) {
         genTokens().catch(ex => logError(`${ex}`));
     }
 
-    return rules;
+    return active ? authorizationRule(active) : noTokensRedirectRule;
 }
 
 async function forceLoadNextTokens() {
+    let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
+    ready_tokens.pop();
+    await browser.storage.local.set({ ready_tokens });
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
     if (enabled) {
-        await browser.storage.local.set({ loaded_tokens: {} });
         await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
-    } else {
-        // extension is disabled, hence next token will be the last one in the ready_tokens list
-        let { ready_tokens } = await chrome.storage.local.get({ 'ready_tokens': [] })
-        const new_ready_tokens = ready_tokens.splice(0, ready_tokens.length - 1)
-        await chrome.storage.local.set({ 'ready_tokens': new_ready_tokens });
     }
 }
 
@@ -122,18 +98,15 @@ async function genTokens() {
 }
 
 async function setPPHeadersListener(details) {
+    if (!REDEMPTION_ENDPOINT_RE.test(details.url)) return;
     if (VERBOSE) {
         debug_log(`setPPHeadersListener: ${details.statusCode} ${details.url}`)
         const remiaining_tokens = await countTokens();
         debug_log(`remaining tokens: ${remiaining_tokens}`)
     }
-    const url = new URL(details.url);
-    const scheme_domain_port = url.origin;
-    const pathname = url.pathname; // comes with a leading /
-    const endpoint = (pathname == "/" || pathname.endsWith('/html')) ? `${scheme_domain_port}${pathname}|` : `${scheme_domain_port}${pathname}`;
-    const { loaded_tokens } = await browser.storage.local.get({ loaded_tokens: {} });
-    delete loaded_tokens[endpoint];
-    await browser.storage.local.set({ loaded_tokens });
+    let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
+    ready_tokens.pop();
+    await browser.storage.local.set({ ready_tokens });
     await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
 }
 

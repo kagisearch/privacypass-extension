@@ -82,8 +82,8 @@ function display_token_count(n_tokens) {
 }
 
 rerenderWhenStorageChanges(async () => {
-  const { ready_tokens, loaded_tokens } = await browser.storage.local.get({ ready_tokens: [], loaded_tokens: {} });
-  display_token_count(ready_tokens.length + Object.keys(loaded_tokens).length);
+  const { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
+  display_token_count(ready_tokens.length);
 });
 
 // ----- Enabled / Disabled toggle

@@ -17,6 +17,7 @@ import {
 import {
     VERBOSE,
     WEBREQUEST_REDEMPTION_ENDPOINTS,
+    REDEMPTION_ENDPOINT_RE,
 } from './config.js'
 
 import {
@@ -44,22 +45,19 @@ import {
 } from './anonymization.js'
 
 async function checkingDoubleSpendListener(details) {
-    const url = new URL(details.url);
-    const scheme_domain_port = url.origin;
-    const pathname = url.pathname; // comes with a leading /
-    const endpoint = (pathname == "/" || pathname.endsWith('/html')) ? `${scheme_domain_port}${pathname}|` : `${scheme_domain_port}${pathname}`;
+    if (!REDEMPTION_ENDPOINT_RE.test(details.url)) return;
     if (VERBOSE) {
-        debug_log(`checkingDoubleSpendListener: ${details.statusCode} ${endpoint}`)
+        debug_log(`checkingDoubleSpendListener: ${details.statusCode} ${details.url}`)
     }
     if (details.statusCode == 401) {
         // unauthorized, likely it's a doublespend
         if (VERBOSE) {
-            debug_log(`> loading a new token for ${endpoint}`)
+            debug_log(`> loading a new token for ${details.url}`)
         }
         // a token was double spent, load the next one
-        const { loaded_tokens } = await browser.storage.local.get({ loaded_tokens: {} });
-        delete loaded_tokens[endpoint];
-        await browser.storage.local.set({ loaded_tokens });
+        let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
+        ready_tokens.pop();
+        await browser.storage.local.set({ ready_tokens });
         await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
         /*
          * The status at this line is:
@@ -101,7 +99,7 @@ async function checkingDoubleSpendListener(details) {
         browser.tabs.create({ url: INVALID_TOKEN_REDIRECT_URL });
     } else {
         if (VERBOSE) {
-            debug_log(`> ok loading ${endpoint}`)
+            debug_log(`> ok loading ${details.url}`)
         }
     }
 }
@@ -150,9 +148,6 @@ async function setDisabled() {
 
     let existingRules = await browser.declarativeNetRequest.getDynamicRules();
     await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds: existingRules.map(r => r.id) });
-
-    let { ready_tokens, loaded_tokens } = await browser.storage.local.get({ ready_tokens: [], loaded_tokens: {} })
-    await browser.storage.local.set({ ready_tokens: ready_tokens.concat(Object.values(loaded_tokens)), loaded_tokens: {} });
 
     browser.webRequest.onSendHeaders.removeListener(setPPHeadersListener);
     browser.webRequest.onCompleted.removeListener(checkingDoubleSpendListener);

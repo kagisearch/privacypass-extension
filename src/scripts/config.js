@@ -30,101 +30,16 @@ export const ONION_ISSUER_REQUEST_ENDPOINT = `${ONION_SCHEME}://${ONION_DOMAIN_P
 export const WWWA_ENDPOINT = STAGING ? `${SCHEME}://stage.${DOMAIN_PORT}/${WWWA_PATH}` : `${SCHEME}://${DOMAIN_PORT}/${WWWA_PATH}`;
 export const ONION_WWWA_ENDPOINT = `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/${WWWA_PATH}`;
 
-// token redemption endpoints
-const REDEMPTION_SERVICES = [
-    "search",
-    "images",
-    "videos",
-    "news",
-    "podcasts"
-]
-let REDEMPTION_ENDPOINTS = [
-    `${SCHEME}://${DOMAIN_PORT}/|`,
-    `${SCHEME}://${DOMAIN_PORT}/html|`,
-    `${SCHEME}://${DOMAIN_PORT}/settings`,
-    `${SCHEME}://${DOMAIN_PORT}/api/quick_settings/landing`,
-    `${SCHEME}://${DOMAIN_PORT}/mother/context`,
-    `${SCHEME}://${DOMAIN_PORT}/mother/summarize_document`,
-    `${SCHEME}://${DOMAIN_PORT}/reverse/upload`,
-    `${SCHEME}://${DOMAIN_PORT}/reverse/reference`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/|`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html|`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/settings`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/landing`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/context`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/mother/summarize_document`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/reverse/upload`,
-    `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/reverse/reference`
-]
-if (STAGING) {
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/|`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/html|`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/settings`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/api/quick_settings/landing`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/context`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/mother/summarize_document`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/reverse/upload`)
-    REDEMPTION_ENDPOINTS.push(`${SCHEME}://stage.${DOMAIN_PORT}/reverse/reference`)
-}
-for (let i = 0; i < REDEMPTION_SERVICES.length; i++) {
-    const service = REDEMPTION_SERVICES[i]
-    REDEMPTION_ENDPOINTS.push(
-        `${SCHEME}://${DOMAIN_PORT}/${service}`
-    )
-    REDEMPTION_ENDPOINTS.push(
-        `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/${service}`
-    )
-    REDEMPTION_ENDPOINTS.push(
-        `${SCHEME}://${DOMAIN_PORT}/html/${service}`
-    )
-    REDEMPTION_ENDPOINTS.push(
-        `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/html/${service}`
-    )
-    REDEMPTION_ENDPOINTS.push(
-        `${SCHEME}://${DOMAIN_PORT}/socket/${service}`
-    )
-    REDEMPTION_ENDPOINTS.push(
-        `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/socket/${service}`
-    )
-    REDEMPTION_ENDPOINTS.push(
-        `${SCHEME}://${DOMAIN_PORT}/api/quick_settings/${service}`
-    )
-    REDEMPTION_ENDPOINTS.push(
-        `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/api/quick_settings/${service}`
-    )
-    if (STAGING) {
-        REDEMPTION_ENDPOINTS.push(
-            `${SCHEME}://stage.${DOMAIN_PORT}/${service}`
-        )
-        REDEMPTION_ENDPOINTS.push(
-            `${SCHEME}://stage.${DOMAIN_PORT}/html/${service}`
-        )
-        REDEMPTION_ENDPOINTS.push(
-            `${SCHEME}://stage.${DOMAIN_PORT}/socket/${service}`
-        )
-        REDEMPTION_ENDPOINTS.push(
-            `${SCHEME}://stage.${DOMAIN_PORT}/api/quick_settings/${service}`
-        )
-    }
-}
-export {
-    REDEMPTION_ENDPOINTS
-};
+export const REDEMPTION_ENDPOINT_REGEX = "^https?://kagi[^/]+/(html/|socket/)?($|\\?|search|images|videos|news|podcasts|settings|mother/|reverse/)";
+export const REDEMPTION_ENDPOINT_RE = new RegExp(REDEMPTION_ENDPOINT_REGEX);
 
-let WEBREQUEST_REDEMPTION_ENDPOINTS = []
-for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
-    let endpoint = REDEMPTION_ENDPOINTS[i];
-    if (endpoint.endsWith('|')) {
-        // webRequest does not recognize urlFilter's |
-        // so we remove the trailing |
-        endpoint = endpoint.substring(0, endpoint.length - 1)
-    }
-    WEBREQUEST_REDEMPTION_ENDPOINTS.push(endpoint)
-    WEBREQUEST_REDEMPTION_ENDPOINTS.push(`${endpoint}?*`)
-}
-export {
-    WEBREQUEST_REDEMPTION_ENDPOINTS
-}
+export const REDEMPTION_REQUEST_DOMAINS = STAGING
+    ? [DOMAIN, ONION_DOMAIN, `stage.${DOMAIN}`]
+    : [DOMAIN, ONION_DOMAIN];
+
+export const WEBREQUEST_REDEMPTION_ENDPOINTS = STAGING
+    ? [`${SCHEME}://${DOMAIN_PORT}/*`, `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/*`, `${SCHEME}://stage.${DOMAIN_PORT}/*`]
+    : [`${SCHEME}://${DOMAIN_PORT}/*`, `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/*`];
 
 // token generation settings
 export const TOKENS_TO_STASH = 300;

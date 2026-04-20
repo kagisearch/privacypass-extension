@@ -40,6 +40,8 @@ import {
     IS_FIREFOX,
     DOMAIN_PORT,
     ONION_DOMAIN_PORT,
+    REDEMPTION_ENDPOINT_REGEX,
+    REDEMPTION_REQUEST_DOMAINS,
 } from './config.js'
 
 // --- general utilities
@@ -121,14 +123,26 @@ const antiFingerprintingRules = [
 
 // --- sets HTTP Authorization header
 
-function authorizationRules(endpoint, token_tuple) {
+function authorizationRule(token_tuple) {
     const [token, token_date] = token_tuple;
     return {
-        addRules: [headerRule({
-            "X-Kagi-PrivacyPass-Client": "true",
-            "Authorization": `PrivateToken token="${token}"`
-        }, endpoint, HTTP_AUTHORIZATION_ID[endpoint], 2)],
-        removeRuleIds: [HTTP_AUTHORIZATION_ID[endpoint]]
+        addRules: [{
+            id: HTTP_AUTHORIZATION_ID,
+            priority: 2,
+            action: {
+                type: "modifyHeaders",
+                requestHeaders: [
+                    { header: "X-Kagi-PrivacyPass-Client", operation: "set", value: "true" },
+                    { header: "Authorization", operation: "set", value: `PrivateToken token="${token}"` },
+                ]
+            },
+            condition: {
+                regexFilter: REDEMPTION_ENDPOINT_REGEX,
+                requestDomains: REDEMPTION_REQUEST_DOMAINS,
+                resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
+            }
+        }],
+        removeRuleIds: [HTTP_AUTHORIZATION_ID]
     };
 }
 
@@ -213,29 +227,24 @@ const htmlIndexRedirectorRules = {
 
 const generalRules = [antiFingerprintingRules, localRedirectorRules, htmlIndexRedirectorRules].reduce(mergeRules);
 
-function noTokensRedirectRules(endpoint) {
-    let resourceTypes = ["main_frame", "sub_frame", "xmlhttprequest", "csp_report", "font", "image", "media", "object", "other", "ping", "script", "stylesheet", "websocket"];
-    if (IS_FIREFOX) {
-        resourceTypes = resourceTypes.concat(["beacon", "imageset", "object_subrequest", "speculative", "web_manifest", "xml_dtd", "xslt"])
-    } else {
-        // chrome
-        resourceTypes = resourceTypes.concat(["webbundle", "webtransport"])
-    }
-    return {
-        addRules: [{
-            id: HTTP_AUTHORIZATION_ID[endpoint],
-            priority: 1,
-            action: { type: "redirect", redirect: { url: NO_TOKEN_REDIRECT_URL } },
-            condition: { urlFilter: endpoint, resourceTypes: resourceTypes }
-        }],
-        removeRuleIds: [HTTP_AUTHORIZATION_ID[endpoint]]
-    };
-}
+const noTokensRedirectRule = {
+    addRules: [{
+        id: HTTP_AUTHORIZATION_ID,
+        priority: 1,
+        action: { type: "redirect", redirect: { url: NO_TOKEN_REDIRECT_URL } },
+        condition: {
+            regexFilter: REDEMPTION_ENDPOINT_REGEX,
+            requestDomains: REDEMPTION_REQUEST_DOMAINS,
+            resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
+        }
+    }],
+    removeRuleIds: [HTTP_AUTHORIZATION_ID]
+};
 
 export {
     generalRules,
     mergeRules,
-    authorizationRules,
-    noTokensRedirectRules,
+    authorizationRule,
+    noTokensRedirectRule,
     range
 };
