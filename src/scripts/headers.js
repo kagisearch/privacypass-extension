@@ -55,7 +55,7 @@ import {
 // --- general utilities
 
 
-function dropHeaderRule(headerKey, endpoint, ruleId, rulePriority, allResourceTypes = false) {
+function headerRule(headers, endpoint, ruleId, rulePriority, allResourceTypes = false) {
     let resourceTypes = ["main_frame", "sub_frame", "xmlhttprequest"];
     if (allResourceTypes) {
         resourceTypes = resourceTypes.concat(["csp_report", "font", "image", "media", "object", "other", "ping", "script", "stylesheet", "websocket"])
@@ -71,36 +71,11 @@ function dropHeaderRule(headerKey, endpoint, ruleId, rulePriority, allResourceTy
         priority: rulePriority,
         action: {
             type: "modifyHeaders",
-            requestHeaders: [{ "header": headerKey, "operation": "remove" }]
+            requestHeaders: Object.entries(headers).map(([header, value]) =>
+                value ? { header, operation: "set", value } : { header, operation: "remove" }
+            )
         },
-        condition:
-        {
-            urlFilter: endpoint,
-            resourceTypes: resourceTypes
-        }
-    };
-}
-
-function editHeaderRule(headerKey, headerValue, endpoint, ruleId, rulePriority, allResourceTypes = false) {
-    let resourceTypes = ["main_frame", "sub_frame", "xmlhttprequest"];
-    if (allResourceTypes) {
-        resourceTypes = resourceTypes.concat(["csp_report", "font", "image", "media", "object", "other", "ping", "script", "stylesheet", "websocket"])
-        if (IS_FIREFOX) {
-            resourceTypes = resourceTypes.concat(["beacon", "imageset", "object_subrequest", "speculative", "web_manifest", "xml_dtd", "xslt"])
-        } else {
-            // chrome
-            resourceTypes = resourceTypes.concat(["webbundle", "webtransport"])
-        }
-    }
-    return {
-        id: ruleId,
-        priority: rulePriority,
-        action: {
-            type: "modifyHeaders",
-            requestHeaders: [{ "header": headerKey, "operation": "set", "value": headerValue }]
-        },
-        condition:
-        {
+        condition: {
             urlFilter: endpoint,
             resourceTypes: resourceTypes
         }
@@ -123,16 +98,8 @@ function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriori
     const onion_endpoint = (ruleEndpointPath != "") ? `||${full_onion_domain_port}/${ruleEndpointPath}` : `||${full_onion_domain_port}/`;
 
     // create the rules to deal with the headers that deanonymise the user
-    for (const key in ruleset) {
-        const val = ruleset[key];
-        if (val) {
-            add_rules.push(editHeaderRule(key, val, endpoint, ++nrules, rulePriority, true));
-            add_rules.push(editHeaderRule(key, val, onion_endpoint, ++nrules, rulePriority, true));
-        } else {
-            add_rules.push(dropHeaderRule(key, endpoint, ++nrules, rulePriority, true));
-            add_rules.push(dropHeaderRule(key, onion_endpoint, ++nrules, rulePriority, true));
-        }
-    }
+    add_rules.push(headerRule(ruleset, endpoint, ++nrules, rulePriority, true));
+    add_rules.push(headerRule(ruleset, onion_endpoint, ++nrules, rulePriority, true));
 
     let rules = {
         addRules: add_rules,
@@ -181,8 +148,10 @@ function compileHTTPAuthorizationRuleset(endpoint, token_tuple) {
     let nrules = offset; // rule separation
 
     // NOTE: if you increase the number of rules below this line, match this with the constant factor in `anonymization.js`
-    add_rules.push(editHeaderRule("X-Kagi-PrivacyPass-Client", "true", endpoint, ++nrules, 2));
-    add_rules.push(editHeaderRule("Authorization", `PrivateToken token="${token}"`, endpoint, ++nrules, 2));
+    add_rules.push(headerRule({
+        "X-Kagi-PrivacyPass-Client": "true",
+        "Authorization": `PrivateToken token="${token}"`
+    }, endpoint, ++nrules, 2));
 
     const rules = {
         addRules: add_rules,
