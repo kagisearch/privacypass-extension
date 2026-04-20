@@ -1,7 +1,6 @@
 
 import {
     setPPHeaders,
-    unsetPPHeaders,
     setPPHeadersListener,
     genTokens,
 } from './generation_and_redemption.js'
@@ -9,12 +8,8 @@ import {
 import {
     setRefererRules,
     setAntiFingerprintingRules,
-    unsetAntiFingerprintingRules,
     setLocaRedirectorHeader,
-    unsetLocaRedirectorHeader,
-    unsetRefererRules,
     setHTMLIndexRedirector,
-    unsetHTMLIndexRedirector
 } from './headers.js'
 
 import {
@@ -159,14 +154,13 @@ async function setDisabled() {
     if (VERBOSE) {
         debug_log("setDisabled")
     }
-    await unsetRefererRules();
-    await unsetAntiFingerprintingRules();
-    await unsetLocaRedirectorHeader();
-    await unsetHTMLIndexRedirector();
-    for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
-        let endpoint = REDEMPTION_ENDPOINTS[i];
-        await unsetPPHeaders(endpoint);
-    }
+
+    let existingRules = await browser.declarativeNetRequest.getDynamicRules();
+    await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds: existingRules.map(r => r.id) });
+
+    let { ready_tokens, loaded_tokens } = await browser.storage.local.get({ ready_tokens: [], loaded_tokens: {} })
+    await browser.storage.local.set({ ready_tokens: ready_tokens.concat(Object.values(loaded_tokens)), loaded_tokens: {} });
+
     browser.webRequest.onSendHeaders.removeListener(setPPHeadersListener);
     browser.webRequest.onCompleted.removeListener(checkingDoubleSpendListener);
     await update_extension_icon(false);

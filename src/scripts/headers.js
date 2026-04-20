@@ -150,25 +150,10 @@ async function setHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePrio
     await browser.declarativeNetRequest.updateDynamicRules(rules)
 }
 
-async function unsetHeaderRuleset(ruleset, offset) {
-    let rule_ids = compileHeaderRuleset(ruleset, offset).removeRuleIds;
-    if (VERBOSE) {
-        debug_log(`unsetHeaderRuleset: ${rule_ids}`);
-    }
-    await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: [],
-        removeRuleIds: rule_ids
-    });
-}
-
 // --- applies rules around the Referer header
 
 async function setRefererRules() {
     return await setHeaderRuleset(REFERER_RULESET, REFERER_RULES_OFFSET)
-}
-
-async function unsetRefererRules() {
-    return await unsetHeaderRuleset(REFERER_RULESET, REFERER_RULES_OFFSET);
 }
 
 // --- general deanonymising header removal
@@ -185,16 +170,6 @@ async function setAntiFingerprintingRules() {
     await setHeaderRuleset({ Accept: "*/*" }, ACCEPT_TRANSLATE_TURSNTILE_OFFSET, "api/auth/turnstile", 2, "translate");
 }
 
-
-// removes any custom HTTP header rules
-async function unsetAntiFingerprintingRules() {
-    await unsetHeaderRuleset(ANONYMIZING_RULESET, ANONYMIZING_RULES_OFFSET)
-    await unsetHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET);
-    await unsetHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET);
-    await unsetHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET);
-    await unsetHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET);
-    await unsetHeaderRuleset({ Accept: "*/*" }, ACCEPT_TRANSLATE_TURSNTILE_OFFSET);
-}
 
 // --- sets HTTP Authorization header
 
@@ -272,16 +247,6 @@ async function setLocaRedirectorHeader() {
     await browser.declarativeNetRequest.updateDynamicRules(rules);
 }
 
-async function unsetLocaRedirectorHeader() {
-    if (VERBOSE) {
-        debug_log("unsetLocaRedirectorHeader");
-    }
-    await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: [],
-        removeRuleIds: [LOCAL_REDIRECTOR_ID, ONION_LOCAL_REDIRECTOR_ID]
-    });
-}
-
 async function setHTMLIndexRedirector() {
     if (VERBOSE) {
         debug_log(`setHTMLIndexRedirector`)
@@ -318,16 +283,6 @@ async function setHTMLIndexRedirector() {
     };
 
     await browser.declarativeNetRequest.updateDynamicRules(rules);
-}
-
-async function unsetHTMLIndexRedirector() {
-    if (VERBOSE) {
-        debug_log("unsetHTMLIndexRedirector");
-    }
-    await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: [],
-        removeRuleIds: [KAGI_HTML_SLASH_REDIRECT, ONION_HTML_SLASH_REDIRECT]
-    });
 }
 
 async function setAuthorizationHeader(endpoint, token_tuple) {
@@ -399,15 +354,11 @@ async function unsetNoTokensRedirect(endpoint) {
 
 export {
     setRefererRules,
-    unsetRefererRules,
     setAntiFingerprintingRules,
-    unsetAntiFingerprintingRules,
     setNoTokensRedirect,
     setHTMLIndexRedirector,
-    unsetHTMLIndexRedirector,
     setAuthorizationHeader,
     unsetAuthorizationHeader,
     setLocaRedirectorHeader,
-    unsetLocaRedirectorHeader,
     range
 };

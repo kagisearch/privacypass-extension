@@ -37,25 +37,6 @@ import {
     FAILED_LOADING_NEXT_TOKEN_ERROR
 } from './errors.js'
 
-async function unloadNextToken(endpoint) {
-    if (VERBOSE) {
-        // debug_log(`unloadNextToken: ${endpoint}`)
-    }
-    const { enabled } = await browser.storage.local.get({ 'enabled': false });
-    if (enabled) {
-        return;
-    }
-    // recover last loaded token
-    const previously_loaded_token_tuple = await unsetAuthorizationHeader(endpoint);
-    if (previously_loaded_token_tuple) {
-        // recover currently stored tokens
-        const { ready_tokens } = await chrome.storage.local.get({ 'ready_tokens': [] })
-        // re-append previously loaded token
-        const new_ready_tokens = ready_tokens.concat([previously_loaded_token_tuple]);
-        await chrome.storage.local.set({ 'ready_tokens': new_ready_tokens });
-    }
-}
-
 async function loadNextToken(endpoint) {
     if (VERBOSE) {
         debug_log(`loadNextToken: ${endpoint}`)
@@ -165,13 +146,6 @@ async function setPPHeaders(endpoint) {
     }
 }
 
-async function unsetPPHeaders(endpoint) {
-    if (VERBOSE) {
-        debug_log(`unsetPPHeaders: ${endpoint}`)
-    }
-    await unloadNextToken(endpoint);
-}
-
 async function setPPHeadersListener(details) {
     if (VERBOSE) {
         debug_log(`setPPHeadersListener: ${details.statusCode} ${details.url}`)
@@ -187,7 +161,6 @@ async function setPPHeadersListener(details) {
 
 export {
     setPPHeaders,
-    unsetPPHeaders,
     setPPHeadersListener,
     genTokens,
     forceLoadNextToken
