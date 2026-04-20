@@ -163,35 +163,12 @@ async function unsetHeaderRuleset(ruleset, offset) {
 
 // --- applies rules around the Referer header
 
-/*
- * The following "Referer" rules are here to protect a user that:
- * 1. Searches <sensitive query> via Privacy Pass: https://kagi.com/search?q=<sensitive query>
- * 2. Disables Privacy Pass from the results page, re-loading its session cookie
- * 3. Opens another Kagi.com page, leaking "https://kagi.com/search?q=<sensitive query>" via its Referer (or equivalent) header
-*/
-
 async function setRefererRules() {
     return await setHeaderRuleset(REFERER_RULESET, REFERER_RULES_OFFSET)
 }
 
 async function unsetRefererRules() {
     return await unsetHeaderRuleset(REFERER_RULESET, REFERER_RULES_OFFSET);
-}
-
-async function selfRemovingUnsetRefererHeadersListener(details) {
-    if (VERBOSE) {
-        debug_log(`selfRemovingUnsetRefererHeadersListener`)
-    }
-    if (!browser.webRequest.onCompleted.hasListener(selfRemovingUnsetRefererHeadersListener)) {
-        if (VERBOSE) {
-            debug_log(`selfRemovingUnsetRefererHeadersListener: no prior listener, doing nothing`)
-        }
-        return;
-    }
-    // remove the specific referer rules
-    await unsetRefererRules();
-    // remove the listener
-    browser.webRequest.onCompleted.removeListener(selfRemovingUnsetRefererHeadersListener);
 }
 
 // --- general deanonymising header removal
@@ -422,7 +399,7 @@ async function unsetNoTokensRedirect(endpoint) {
 
 export {
     setRefererRules,
-    selfRemovingUnsetRefererHeadersListener,
+    unsetRefererRules,
     setAntiFingerprintingRules,
     unsetAntiFingerprintingRules,
     setNoTokensRedirect,

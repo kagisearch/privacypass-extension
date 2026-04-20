@@ -12,7 +12,7 @@ import {
     unsetAntiFingerprintingRules,
     setLocaRedirectorHeader,
     unsetLocaRedirectorHeader,
-    selfRemovingUnsetRefererHeadersListener,
+    unsetRefererRules,
     setHTMLIndexRedirector,
     unsetHTMLIndexRedirector
 } from './headers.js'
@@ -159,6 +159,7 @@ async function setDisabled() {
     if (VERBOSE) {
         debug_log("setDisabled")
     }
+    await unsetRefererRules();
     await unsetAntiFingerprintingRules();
     await unsetLocaRedirectorHeader();
     await unsetHTMLIndexRedirector();
@@ -168,11 +169,6 @@ async function setDisabled() {
     }
     browser.webRequest.onSendHeaders.removeListener(setPPHeadersListener);
     browser.webRequest.onCompleted.removeListener(checkingDoubleSpendListener);
-    browser.webRequest.onCompleted.addListener(
-        selfRemovingUnsetRefererHeadersListener,
-        { urls: ["<all_urls>"] },
-        ["responseHeaders"]
-    )
     await update_extension_icon(false);
 }
 
