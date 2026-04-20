@@ -59,7 +59,7 @@ async function forceLoadNextTokens() {
     let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
     ready_tokens.pop();
     await browser.storage.local.set({ ready_tokens });
-    const { enabled } = await browser.storage.local.get({ 'enabled': false });
+    const { enabled } = await browser.storage.local.get({ 'enabled': true });
     if (enabled) {
         await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
     }
@@ -90,7 +90,7 @@ async function genTokens() {
     const new_tokens = tokens.map((tok) => [tok, current_time]);
     await chrome.storage.local.set({ "ready_tokens": new_tokens.concat(ready_tokens) })
     // if enabled, load next token
-    const { enabled } = await browser.storage.local.get({ 'enabled': false });
+    const { enabled } = await browser.storage.local.get({ 'enabled': true });
     if (enabled) {
         await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
     }

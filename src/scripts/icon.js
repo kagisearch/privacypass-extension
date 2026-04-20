@@ -1,7 +1,4 @@
 async function update_extension_icon(enabled) {
-  if (typeof enabled === "undefined") {
-    enabled = (await browser.storage.local.get({ 'enabled': false }))['enabled'];
-  }
   const path = enabled ? "enabled" : "disabled";
   await chrome.action.setIcon({
     path: {

@@ -17,7 +17,7 @@ async function sendPPModeStatus() {
     if (VERBOSE) {
         debug_log('sendPPModeStatus')
     }
-    const { enabled } = await chrome.storage.local.get({ 'enabled': false });
+    const { enabled } = await chrome.storage.local.get({ 'enabled': true });
     try {
         await chrome.runtime.sendMessage(KAGI_EXTENSION_ID, { 'enabled': enabled });
     } catch (ex) {
@@ -36,7 +36,7 @@ async function statusRequestListener(request, sender, sendResponse) {
     if (VERBOSE) {
         debug_log(`message from Kagi Search extension: ${request}`)
     }
-    const { enabled } = await chrome.storage.local.get({ 'enabled': false });
+    const { enabled } = await chrome.storage.local.get({ 'enabled': true });
     sendResponse(enabled); // chrome
     return enabled; // firefox
 };

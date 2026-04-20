@@ -7,7 +7,6 @@ import {
 
 import {
     generalRules,
-    mergeRules,
 } from './headers.js'
 
 import {
@@ -122,8 +121,11 @@ async function setEnabled() {
             return;
         }
     }
-    // enable Privacy Pass mode
-    await browser.declarativeNetRequest.updateDynamicRules(mergeRules(generalRules, await loadTokensRules()));
+    let existingRules = await browser.declarativeNetRequest.getDynamicRules();
+    await browser.declarativeNetRequest.updateDynamicRules({
+        addRules: [...generalRules.addRules, ...(await loadTokensRules()).addRules],
+        removeRuleIds: existingRules.map(r => r.id), // Must cover *all* rules, including from old versions of the extension
+    });
     browser.webRequest.onSendHeaders.addListener(
         setPPHeadersListener,
         {

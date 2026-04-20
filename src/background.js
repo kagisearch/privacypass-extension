@@ -41,7 +41,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     debug_log(`onMessage: ${message}`);
   }
   if (message == "enabled_changed") {
-    const { enabled } = await browser.storage.local.get({ 'enabled': false });
+    const { enabled } = await browser.storage.local.get({ 'enabled': true });
     if (enabled) {
       await setEnabled();
     } else {
@@ -63,34 +63,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   }
 })
 
-// ----- code run on install
-
-chrome.runtime.onInstalled.addListener(async (details) => {
-  // in install, enable the extension and fetch some tokens
-  console.log("onInstalled")
-  if (details.reason == "install") {
-    await chrome.storage.local.set({ 'enabled': true });
-    await setEnabled();
-  } else if (details.reason == "update") {
-    // if extension was enabled before receiving the oupdate,
-    // force a disable-enable cycle in order to apply any changes
-    const { enabled } = await browser.storage.local.get({ 'enabled': false });
-    if (enabled) {
-      await chrome.storage.local.set({ 'enabled': false });
-      await setDisabled();
-      await sendPPModeStatus();
-      await chrome.storage.local.set({ 'enabled': true });
-      await setEnabled();
-    }
-
-    // when enabled status changed, inform Kagi Search extension
-    await sendPPModeStatus();
-
-    // make sure the icon extension reflects enabled/disabled
-    await update_extension_icon(enabled);
-  }
-});
-
 // ----- listen to status requests from Kagi Search extension
 
 chrome.runtime.onMessageExternal.addListener(statusRequestListener);
@@ -102,7 +74,7 @@ async function onStart() {
     debug_log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
   }
   console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
-  const { enabled } = await browser.storage.local.get({ 'enabled': false });
+  const { enabled } = await browser.storage.local.get({ 'enabled': true });
   if (enabled) {
     await setEnabled();
   }

@@ -10,7 +10,7 @@ function update_indicator_opacity(enabled) {
 }
 
 async function is_enabled() {
-  const { enabled } = await browser.storage.local.get({ 'enabled': false })
+  const { enabled } = await browser.storage.local.get({ 'enabled': true })
   enabled_checkbox.checked = enabled;
   update_indicator_opacity(enabled);
   await update_extension_icon(enabled);
