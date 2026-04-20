@@ -60,18 +60,13 @@ export const KAGI_HTML_SLASH_REDIRECT = 180;
 export const ONION_HTML_SLASH_REDIRECT = 182;
 
 const INITIAL_HTTP_AUTHORIZATION_ID = 200
-const INITIAL_NO_TOKEN_REDIRECT_ID = 400
 let HTTP_AUTHORIZATION_ID = {}
-let NO_TOKEN_REDIRECT_ID = {}
 for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
     const endpoint = REDEMPTION_ENDPOINTS[i]
-    // the factor "2" and "3" below must be >= than the number of rules added in compileHTTPAuthorizationRuleset,
-    NO_TOKEN_REDIRECT_ID[endpoint] = INITIAL_NO_TOKEN_REDIRECT_ID + 2 * i
-    HTTP_AUTHORIZATION_ID[endpoint] = INITIAL_HTTP_AUTHORIZATION_ID + 3 * i
+    HTTP_AUTHORIZATION_ID[endpoint] = INITIAL_HTTP_AUTHORIZATION_ID + i
 }
 export {
     HTTP_AUTHORIZATION_ID,
-    NO_TOKEN_REDIRECT_ID
 };
 export const INVALID_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/invalid-token.html");
 export const NO_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/out-of-tokens.html");

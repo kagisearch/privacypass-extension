@@ -29,7 +29,6 @@ import {
     ANONYMIZING_RULES_OFFSET,
     ANONYMIZING_RULESET,
     REFERER_RULESET,
-    NO_TOKEN_REDIRECT_ID,
     NO_TOKEN_REDIRECT_URL,
     LOCAL_REDIRECTOR_URL,
     LOCAL_REDIRECTOR_ID,
@@ -38,18 +37,10 @@ import {
 } from "./anonymization.js";
 
 import {
-    VERBOSE,
     IS_FIREFOX,
-    SCHEME,
-    ONION_SCHEME,
     DOMAIN_PORT,
     ONION_DOMAIN_PORT,
-    DOMAIN
 } from './config.js'
-
-import {
-    debug_log
-} from './debug_log.js'
 
 // --- general utilities
 
@@ -130,25 +121,15 @@ const antiFingerprintingRules = [
 
 // --- sets HTTP Authorization header
 
-function compileHTTPAuthorizationRuleset(endpoint, token_tuple) {
+function authorizationRules(endpoint, token_tuple) {
     const [token, token_date] = token_tuple;
-
-    const offset = HTTP_AUTHORIZATION_ID[endpoint];
-    let add_rules = [];
-    let nrules = offset; // rule separation
-
-    // NOTE: if you increase the number of rules below this line, match this with the constant factor in `anonymization.js`
-    add_rules.push(headerRule({
-        "X-Kagi-PrivacyPass-Client": "true",
-        "Authorization": `PrivateToken token="${token}"`
-    }, endpoint, ++nrules, 2));
-
-    const rules = {
-        addRules: add_rules,
-        removeRuleIds: range(nrules - offset, offset + 1)
+    return {
+        addRules: [headerRule({
+            "X-Kagi-PrivacyPass-Client": "true",
+            "Authorization": `PrivateToken token="${token}"`
+        }, endpoint, HTTP_AUTHORIZATION_ID[endpoint], 2)],
+        removeRuleIds: [HTTP_AUTHORIZATION_ID[endpoint]]
     };
-
-    return rules;
 }
 
 // requests with `token=...` as a GET variable (ie, from session link / search bar main without extension)
@@ -232,43 +213,7 @@ const htmlIndexRedirectorRules = {
 
 const generalRules = [antiFingerprintingRules, localRedirectorRules, htmlIndexRedirectorRules].reduce(mergeRules);
 
-async function setAuthorizationHeader(endpoint, token_tuple) {
-    if (VERBOSE) {
-        debug_log(`[${endpoint}] ${token_tuple[0].substring(0, 32)}`)
-    }
-    await unsetNoTokensRedirect(endpoint);
-    const rules = compileHTTPAuthorizationRuleset(endpoint, token_tuple);
-    await browser.declarativeNetRequest.updateDynamicRules(rules);
-    // load the token tuple in local storage
-    let { loaded_tokens } = await browser.storage.local.get({ "loaded_tokens": {} })
-    loaded_tokens[endpoint] = token_tuple
-    await browser.storage.local.set({ "loaded_tokens": loaded_tokens })
-}
-
-async function unsetAuthorizationHeader(endpoint) {
-    await unsetNoTokensRedirect(endpoint);
-    let rule_ids = compileHTTPAuthorizationRuleset(endpoint, ["placeholder", 0]).removeRuleIds;
-    if (VERBOSE) {
-        // debug_log(`unsetAuthorizationHeader: ${rule_ids} ${endpoint}`);
-    }
-    await chrome.declarativeNetRequest.updateDynamicRules({
-        addRules: [],
-        removeRuleIds: rule_ids
-    });
-
-    // recover token tuple from local storage
-    let { loaded_tokens } = await browser.storage.local.get({ "loaded_tokens": {} })
-    let token_tuple = false;
-    if (endpoint in loaded_tokens) {
-        token_tuple = loaded_tokens[endpoint]
-        delete loaded_tokens[endpoint];
-        await browser.storage.local.set({ "loaded_tokens": loaded_tokens });
-    }
-    return token_tuple;
-}
-
-async function setNoTokensRedirect(endpoint) {
-    debug_log(`setNoTokensRedirect: ${endpoint}`);
+function noTokensRedirectRules(endpoint) {
     let resourceTypes = ["main_frame", "sub_frame", "xmlhttprequest", "csp_report", "font", "image", "media", "object", "other", "ping", "script", "stylesheet", "websocket"];
     if (IS_FIREFOX) {
         resourceTypes = resourceTypes.concat(["beacon", "imageset", "object_subrequest", "speculative", "web_manifest", "xml_dtd", "xslt"])
@@ -276,33 +221,21 @@ async function setNoTokensRedirect(endpoint) {
         // chrome
         resourceTypes = resourceTypes.concat(["webbundle", "webtransport"])
     }
-    const rules = {
-        addRules: [
-            {
-                id: NO_TOKEN_REDIRECT_ID[endpoint],
-                priority: 1,
-                action: { type: "redirect", redirect: { url: NO_TOKEN_REDIRECT_URL } },
-                condition: { urlFilter: endpoint, resourceTypes: resourceTypes }
-            }
-        ],
-        removeRuleIds: [NO_TOKEN_REDIRECT_ID[endpoint]]
+    return {
+        addRules: [{
+            id: HTTP_AUTHORIZATION_ID[endpoint],
+            priority: 1,
+            action: { type: "redirect", redirect: { url: NO_TOKEN_REDIRECT_URL } },
+            condition: { urlFilter: endpoint, resourceTypes: resourceTypes }
+        }],
+        removeRuleIds: [HTTP_AUTHORIZATION_ID[endpoint]]
     };
-    await browser.declarativeNetRequest.updateDynamicRules(rules);
-}
-
-async function unsetNoTokensRedirect(endpoint) {
-    if (VERBOSE) {
-        // debug_log(`unsetNoTokensRedirect: ${endpoint}`)
-    }
-    await browser.declarativeNetRequest.updateDynamicRules({
-        addRules: [], removeRuleIds: [NO_TOKEN_REDIRECT_ID[endpoint]]
-    });
 }
 
 export {
     generalRules,
-    setNoTokensRedirect,
-    setAuthorizationHeader,
-    unsetAuthorizationHeader,
+    mergeRules,
+    authorizationRules,
+    noTokensRedirectRules,
     range
 };

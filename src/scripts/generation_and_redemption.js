@@ -27,9 +27,9 @@ import {
 } from './manage_tokens.js'
 
 import {
-    setAuthorizationHeader,
-    unsetAuthorizationHeader,
-    setNoTokensRedirect
+    authorizationRules,
+    noTokensRedirectRules,
+    mergeRules
 } from './headers.js'
 
 import {
@@ -37,63 +37,53 @@ import {
     FAILED_LOADING_NEXT_TOKEN_ERROR
 } from './errors.js'
 
-async function loadNextToken(endpoint) {
-    if (VERBOSE) {
-        debug_log(`loadNextToken: ${endpoint}`)
-    }
-    const { enabled } = await browser.storage.local.get({ 'enabled': false });
-    if (!enabled) {
-        return;
-    }
-
-    // load all tokens in extension storage
-    let { ready_tokens } = await chrome.storage.local.get({ 'ready_tokens': [] })
-
-    // beginning of prior epoch
+async function loadTokensRules() {
+    const { ready_tokens, loaded_tokens } = await browser.storage.local.get({ ready_tokens: [], loaded_tokens: {} });
     const beginning_prior_epoch = beginningOfPriorEpoch();
+    let rules = { addRules: [], removeRuleIds: [] };
+    let ranOut = false;
 
-    let next_token_tuple = null;
-    if (ready_tokens.length > 0) {
-        do {
-            // pop the next oldest token
-            const [oldest_token, oldest_token_date] = ready_tokens.pop();
-            if (oldest_token_date > beginning_prior_epoch) {
-                next_token_tuple = [oldest_token, oldest_token_date];
+    for (const endpoint of REDEMPTION_ENDPOINTS) {
+        const currentToken = loaded_tokens[endpoint];
+        const valid = currentToken && currentToken[1] > beginning_prior_epoch;
+        if (!valid) {
+            let next_token_tuple = null;
+            while (!next_token_tuple && ready_tokens.length > 0) {
+                const [oldest_token, oldest_token_date] = ready_tokens.pop();
+                if (oldest_token_date > beginning_prior_epoch) {
+                    next_token_tuple = [oldest_token, oldest_token_date];
+                }
             }
-        } while (!next_token_tuple && ready_tokens.length > 0);
-        await chrome.storage.local.set({ "ready_tokens": ready_tokens })
-    }
-
-    if (next_token_tuple) {
-        // found a fresh token
-        // => load token in Authorization header and remove it from token list
-        await setAuthorizationHeader(endpoint, next_token_tuple);
-        const remiaining_tokens = await countTokens();
-        if (remiaining_tokens <= LOW_TOKEN_COUNT) {
-            if (GEN_TOKENS_ON_LOW_COUNT) { // always true, useful to set to false for debug
-                await genTokens();
+            if (next_token_tuple) {
+                loaded_tokens[endpoint] = next_token_tuple;
+            } else {
+                delete loaded_tokens[endpoint];
+                ranOut = true;
             }
         }
-    } else {
-        // did not find a fresh token
-        await logError(FAILED_LOADING_NEXT_TOKEN_ERROR);
-        await unsetAuthorizationHeader(endpoint);
-        await setNoTokensRedirect(endpoint);
-        if (GEN_TOKENS_ON_ZERO_COUNT) { // always true, useful to set to false for debug
-            await genTokens();
-        }
+        rules = mergeRules(rules, loaded_tokens[endpoint] ? authorizationRules(endpoint, loaded_tokens[endpoint]) : noTokensRedirectRules(endpoint));
     }
+
+    await browser.storage.local.set({ ready_tokens, loaded_tokens });
+
+    if (ranOut && GEN_TOKENS_ON_ZERO_COUNT) {
+        logError(FAILED_LOADING_NEXT_TOKEN_ERROR);
+        genTokens().catch(ex => logError(`${ex}`));
+    } else if (GEN_TOKENS_ON_LOW_COUNT && ready_tokens.length <= LOW_TOKEN_COUNT) {
+        genTokens().catch(ex => logError(`${ex}`));
+    }
+
+    return rules;
 }
 
-async function forceLoadNextToken(endpoint) {
+async function forceLoadNextTokens() {
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
     if (enabled) {
-        // extension is enabled, simply call loadNextToken
-        await setPPHeaders(endpoint);
+        await browser.storage.local.set({ loaded_tokens: {} });
+        await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
     } else {
         // extension is disabled, hence next token will be the last one in the ready_tokens list
         let { ready_tokens } = await chrome.storage.local.get({ 'ready_tokens': [] })
-        // new_ready_tokens = ready_tokens[:-1]
         const new_ready_tokens = ready_tokens.splice(0, ready_tokens.length - 1)
         await chrome.storage.local.set({ 'ready_tokens': new_ready_tokens });
     }
@@ -126,24 +116,9 @@ async function genTokens() {
     // if enabled, load next token
     const { enabled } = await browser.storage.local.get({ 'enabled': false });
     if (enabled) {
-        for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
-            const endpoint = REDEMPTION_ENDPOINTS[i];
-            await loadNextToken(endpoint);
-        }
+        await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
     }
     await clearError();
-}
-
-async function setPPHeaders(endpoint) {
-    if (VERBOSE) {
-        debug_log(`setPPHeaders: ${endpoint}`)
-    }
-    try {
-        await loadNextToken(endpoint);
-    } catch (ex) {
-        await logError(`${ex}`);
-        return;
-    }
 }
 
 async function setPPHeadersListener(details) {
@@ -156,12 +131,15 @@ async function setPPHeadersListener(details) {
     const scheme_domain_port = url.origin;
     const pathname = url.pathname; // comes with a leading /
     const endpoint = (pathname == "/" || pathname.endsWith('/html')) ? `${scheme_domain_port}${pathname}|` : `${scheme_domain_port}${pathname}`;
-    await setPPHeaders(endpoint);
+    const { loaded_tokens } = await browser.storage.local.get({ loaded_tokens: {} });
+    delete loaded_tokens[endpoint];
+    await browser.storage.local.set({ loaded_tokens });
+    await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
 }
 
 export {
-    setPPHeaders,
+    loadTokensRules,
     setPPHeadersListener,
     genTokens,
-    forceLoadNextToken
+    forceLoadNextTokens,
 };

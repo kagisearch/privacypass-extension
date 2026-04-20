@@ -1,12 +1,13 @@
 
 import {
-    setPPHeaders,
+    loadTokensRules,
     setPPHeadersListener,
     genTokens,
 } from './generation_and_redemption.js'
 
 import {
     generalRules,
+    mergeRules,
 } from './headers.js'
 
 import {
@@ -15,7 +16,6 @@ import {
 
 import {
     VERBOSE,
-    REDEMPTION_ENDPOINTS,
     WEBREQUEST_REDEMPTION_ENDPOINTS,
 } from './config.js'
 
@@ -57,7 +57,10 @@ async function checkingDoubleSpendListener(details) {
             debug_log(`> loading a new token for ${endpoint}`)
         }
         // a token was double spent, load the next one
-        await setPPHeaders(endpoint);
+        const { loaded_tokens } = await browser.storage.local.get({ loaded_tokens: {} });
+        delete loaded_tokens[endpoint];
+        await browser.storage.local.set({ loaded_tokens });
+        await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
         /*
          * The status at this line is:
          * - an error page is shown (or no results displayed in case of a /socket/ request failing)
@@ -122,11 +125,7 @@ async function setEnabled() {
         }
     }
     // enable Privacy Pass mode
-    await browser.declarativeNetRequest.updateDynamicRules(generalRules);
-    for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
-        let endpoint = REDEMPTION_ENDPOINTS[i];
-        await setPPHeaders(endpoint);
-    }
+    await browser.declarativeNetRequest.updateDynamicRules(mergeRules(generalRules, await loadTokensRules()));
     browser.webRequest.onSendHeaders.addListener(
         setPPHeadersListener,
         {

@@ -9,12 +9,11 @@ import {
 
 import {
   VERBOSE,
-  REDEMPTION_ENDPOINTS
 } from './scripts/config.js'
 
 import {
   genTokens,
-  forceLoadNextToken,
+  forceLoadNextTokens,
 } from './scripts/generation_and_redemption.js';
 
 import {
@@ -58,10 +57,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       return;
     }
   } else if (message == "force_load_next_token") {
-    for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
-      let endpoint = REDEMPTION_ENDPOINTS[i];
-      await forceLoadNextToken(endpoint);
-    }
+    await forceLoadNextTokens();
   } else {
     await logError(UI_COMMAND_NOT_RECOGNIZED_ERROR);
   }
