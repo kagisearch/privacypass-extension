@@ -28,7 +28,6 @@ import {
     ONION_HTML_SLASH_REDIRECT,
     ANONYMIZING_RULES_OFFSET,
     ANONYMIZING_RULESET,
-    REFERER_RULES_OFFSET,
     REFERER_RULESET,
     NO_TOKEN_REDIRECT_ID,
     NO_TOKEN_REDIRECT_URL,
@@ -109,33 +108,24 @@ function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriori
     return rules;
 };
 
-async function setHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriority = 1, subDomain = "") {
-    const rules = compileHeaderRuleset(ruleset, offset, ruleEndpointPath, rulePriority, subDomain);
-    if (VERBOSE) {
-        debug_log(`setHeaderRuleset: ${rules}`)
-    }
-    await browser.declarativeNetRequest.updateDynamicRules(rules)
+function mergeRules(a, b) {
+    return {
+        addRules: [...a.addRules, ...b.addRules],
+        removeRuleIds: [...a.removeRuleIds, ...b.removeRuleIds]
+    };
 }
 
-// --- applies rules around the Referer header
-
-async function setRefererRules() {
-    return await setHeaderRuleset(REFERER_RULESET, REFERER_RULES_OFFSET)
-}
-
-// --- general deanonymising header removal
-
-async function setAntiFingerprintingRules() {
-    await setHeaderRuleset(ANONYMIZING_RULESET, ANONYMIZING_RULES_OFFSET)
+const antiFingerprintingRules = [
+    compileHeaderRuleset({ ...ANONYMIZING_RULESET, ...REFERER_RULESET }, ANONYMIZING_RULES_OFFSET),
     // just for /socket/* endpoints, force Accept: "text/event-stream"
-    await setHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET, "socket/", 2);
+    compileHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET, "socket/", 2),
     // support for quick answer and summarize document from search results page
-    await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET, "mother/context", 2);
-    await setHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET, "mother/summarize_document", 2);
+    compileHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET, "mother/context", 2),
+    compileHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET, "mother/summarize_document", 2),
     // just for translate.kagi.com/?/translate/ to accept "application/json" and turnstile to */*
-    await setHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET, "?/translate", 2, "translate");
-    await setHeaderRuleset({ Accept: "*/*" }, ACCEPT_TRANSLATE_TURSNTILE_OFFSET, "api/auth/turnstile", 2, "translate");
-}
+    compileHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET, "?/translate", 2, "translate"),
+    compileHeaderRuleset({ Accept: "*/*" }, ACCEPT_TRANSLATE_TURSNTILE_OFFSET, "api/auth/turnstile", 2, "translate"),
+].reduce(mergeRules);
 
 
 // --- sets HTTP Authorization header
@@ -161,98 +151,86 @@ function compileHTTPAuthorizationRuleset(endpoint, token_tuple) {
     return rules;
 }
 
-async function setLocaRedirectorHeader() {
-    if (VERBOSE) {
-        debug_log(`setLocaRedirectorHeader`)
-    }
-    // requests with `token=...` as a GET variable (ie, from session link / search bar main without extension)
-    // search without the redirect rule results in
-    // 1. the server sees the token sent to kagi.com (we do also send a PP token), redirects to search
-    // 2. the redirect gets the cookies stripeed anyway, so kagi.com ends up served. PP token present
-    // in step 1 user is deanonymised.
-    // A DNR redirect can be set to strip the `token` variable from the URL.
-    // However, this causes an internal redirect that does not apply any of the rules above,
-    // meaning the user sends their Cookie in the headers, resulting in deanonymisation.
+// requests with `token=...` as a GET variable (ie, from session link / search bar main without extension)
+// search without the redirect rule results in
+// 1. the server sees the token sent to kagi.com (we do also send a PP token), redirects to search
+// 2. the redirect gets the cookies stripeed anyway, so kagi.com ends up served. PP token present
+// in step 1 user is deanonymised.
+// A DNR redirect can be set to strip the `token` variable from the URL.
+// However, this causes an internal redirect that does not apply any of the rules above,
+// meaning the user sends their Cookie in the headers, resulting in deanonymisation.
 
-    // We address this by "triangulating" requests with a `token` GET variable.
-    // We filter only such requests, strip the token variable, and send them to an endpoint on a domain different than kagi.com
-    // (in this case, the local extension storage)
-    // This endpoint returns 303 redirect to kagi.com/search?non_token_variables
-    // This causes the browser to finally apply the above filtering rules, getting around the limitations of DNR.
+// We address this by "triangulating" requests with a `token` GET variable.
+// We filter only such requests, strip the token variable, and send them to an endpoint on a domain different than kagi.com
+// (in this case, the local extension storage)
+// This endpoint returns 303 redirect to kagi.com/search?non_token_variables
+// This causes the browser to finally apply the above filtering rules, getting around the limitations of DNR.
 
-    // We write the redirect rule using regexes. The URLTransform approach does not seem to behave properly.
-    // this should only be applied for the /search endpoint, since this is the one used for the Kagi session link
-    const rules = {
-        addRules: [{
-            id: LOCAL_REDIRECTOR_ID,
-            priority: 1,
-            condition: {
-                regexFilter: "^https?://kagi.com/search/?\\??(.*)[\\?|&](token=[^&]*)(.*)$", // match search queries including a `token` get variable
-                resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
-            },
-            action: {
-                type: "redirect",
-                redirect: {
-                    regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3` // remove only the `token` get variable
-                }
+// We write the redirect rule using regexes. The URLTransform approach does not seem to behave properly.
+// this should only be applied for the /search endpoint, since this is the one used for the Kagi session link
+const localRedirectorRules = {
+    addRules: [{
+        id: LOCAL_REDIRECTOR_ID,
+        priority: 1,
+        condition: {
+            regexFilter: "^https?://kagi.com/search/?\\??(.*)[\\?|&](token=[^&]*)(.*)$", // match search queries including a `token` get variable
+            resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
+        },
+        action: {
+            type: "redirect",
+            redirect: {
+                regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3` // remove only the `token` get variable
             }
-        }, {
-            id: ONION_LOCAL_REDIRECTOR_ID,
-            priority: 1,
-            condition: {
-                regexFilter: "^https?://kagi2pv5bdcxxqla5itjzje2cgdccuwept5ub6patvmvn3qgmgjd6vid.onion/search/?\\??(.*)[\\?|&](token=[^&]*)(.*)$", // match search queries including a `token` get variable
-                resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
-            },
-            action: {
-                type: "redirect",
-                redirect: {
-                    regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3&onion=1` // remove only the `token` get variable
-                }
+        }
+    }, {
+        id: ONION_LOCAL_REDIRECTOR_ID,
+        priority: 1,
+        condition: {
+            regexFilter: "^https?://kagi2pv5bdcxxqla5itjzje2cgdccuwept5ub6patvmvn3qgmgjd6vid.onion/search/?\\??(.*)[\\?|&](token=[^&]*)(.*)$", // match search queries including a `token` get variable
+            resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
+        },
+        action: {
+            type: "redirect",
+            redirect: {
+                regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3&onion=1` // remove only the `token` get variable
             }
-        }],
-        removeRuleIds: [LOCAL_REDIRECTOR_ID, ONION_LOCAL_REDIRECTOR_ID]
-    };
+        }
+    }],
+    removeRuleIds: [LOCAL_REDIRECTOR_ID, ONION_LOCAL_REDIRECTOR_ID]
+};
 
-    await browser.declarativeNetRequest.updateDynamicRules(rules);
-}
-
-async function setHTMLIndexRedirector() {
-    if (VERBOSE) {
-        debug_log(`setHTMLIndexRedirector`)
-    }
-    const rules = {
-        addRules: [{
-            id: KAGI_HTML_SLASH_REDIRECT,
-            priority: 1,
-            condition: {
-                urlFilter: `||${DOMAIN_PORT}/html/|`,
-                resourceTypes: ["main_frame", "sub_frame"]
-            },
-            action: {
-                type: "redirect",
-                redirect: {
-                    url: `https://${DOMAIN_PORT}/html`
-                }
+const htmlIndexRedirectorRules = {
+    addRules: [{
+        id: KAGI_HTML_SLASH_REDIRECT,
+        priority: 1,
+        condition: {
+            urlFilter: `||${DOMAIN_PORT}/html/|`,
+            resourceTypes: ["main_frame", "sub_frame"]
+        },
+        action: {
+            type: "redirect",
+            redirect: {
+                url: `https://${DOMAIN_PORT}/html`
             }
-        }, {
-            id: ONION_HTML_SLASH_REDIRECT,
-            priority: 1,
-            condition: {
-                urlFilter: `||${ONION_DOMAIN_PORT}/html/|`,
-                resourceTypes: ["main_frame", "sub_frame"]
-            },
-            action: {
-                type: "redirect",
-                redirect: {
-                    url: `http://${ONION_DOMAIN_PORT}/html`
-                }
+        }
+    }, {
+        id: ONION_HTML_SLASH_REDIRECT,
+        priority: 1,
+        condition: {
+            urlFilter: `||${ONION_DOMAIN_PORT}/html/|`,
+            resourceTypes: ["main_frame", "sub_frame"]
+        },
+        action: {
+            type: "redirect",
+            redirect: {
+                url: `http://${ONION_DOMAIN_PORT}/html`
             }
-        }],
-        removeRuleIds: [KAGI_HTML_SLASH_REDIRECT, ONION_HTML_SLASH_REDIRECT]
-    };
+        }
+    }],
+    removeRuleIds: [KAGI_HTML_SLASH_REDIRECT, ONION_HTML_SLASH_REDIRECT]
+};
 
-    await browser.declarativeNetRequest.updateDynamicRules(rules);
-}
+const generalRules = [antiFingerprintingRules, localRedirectorRules, htmlIndexRedirectorRules].reduce(mergeRules);
 
 async function setAuthorizationHeader(endpoint, token_tuple) {
     if (VERBOSE) {
@@ -322,12 +300,9 @@ async function unsetNoTokensRedirect(endpoint) {
 }
 
 export {
-    setRefererRules,
-    setAntiFingerprintingRules,
+    generalRules,
     setNoTokensRedirect,
-    setHTMLIndexRedirector,
     setAuthorizationHeader,
     unsetAuthorizationHeader,
-    setLocaRedirectorHeader,
     range
 };

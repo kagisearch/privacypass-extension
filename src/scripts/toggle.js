@@ -6,10 +6,7 @@ import {
 } from './generation_and_redemption.js'
 
 import {
-    setRefererRules,
-    setAntiFingerprintingRules,
-    setLocaRedirectorHeader,
-    setHTMLIndexRedirector,
+    generalRules,
 } from './headers.js'
 
 import {
@@ -125,10 +122,7 @@ async function setEnabled() {
         }
     }
     // enable Privacy Pass mode
-    await setRefererRules();
-    await setAntiFingerprintingRules();
-    await setLocaRedirectorHeader();
-    await setHTMLIndexRedirector();
+    await browser.declarativeNetRequest.updateDynamicRules(generalRules);
     for (let i = 0; i < REDEMPTION_ENDPOINTS.length; i++) {
         let endpoint = REDEMPTION_ENDPOINTS[i];
         await setPPHeaders(endpoint);
