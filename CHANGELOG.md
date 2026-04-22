@@ -1,6 +1,21 @@
 
 # Change Log
 
+## [1.0.9] - 2026-04-22
+
+### Added
+
+- Incognito-only mode.
+
+### Changed
+
+- Made the redirect flow faster.
+- Substantial simplifications behind the scenes.
+
+### Fixed
+
+- Fix special characters being mishandled in search queries that go through the redirect flow (#23).
+
 ## [1.0.8] - 2025-10-03
 
 ### Changed
