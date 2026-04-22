@@ -63,4 +63,4 @@ export const INVALID_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/invalid-
 export const NO_TOKEN_REDIRECT_URL = browser.runtime.getURL("pages/out-of-tokens.html");
 export const LOCAL_REDIRECTOR_URL = browser.runtime.getURL("pages/redirector.html");
 export const LOCAL_REDIRECTOR_ID = 2;
-export const ONION_LOCAL_REDIRECTOR_ID = 4;
+export const UNCLASSIFIED_TAB_CATCHER_ID = 4;

@@ -6,6 +6,8 @@ import {
 
 import {
     generalRules,
+    mergeRules,
+    unclassifiedTabCatcherRule,
 } from './headers.js'
 
 import {
@@ -43,12 +45,14 @@ import {
 } from './anonymization.js'
 
 let nonIncogTabIds = null;
+let incogTabIds = null;
 
 async function applyRules(rules, { replaceAll = false } = {}) {
     let addRules = rules.addRules;
     if (nonIncogTabIds !== null) {
         const excludedTabIds = Array.from(nonIncogTabIds);
-        addRules = addRules.map(r => ({ ...r, condition: { ...r.condition, excludedTabIds } }));
+        // scope PP/anonymizing rules to incog; leave rules that set their own excludedTabIds (e.g. catcher) alone
+        addRules = addRules.map(r => r.condition.excludedTabIds ? r : ({ ...r, condition: { ...r.condition, excludedTabIds } }));
         const removeRuleIds = replaceAll ? (await browser.declarativeNetRequest.getSessionRules()).map(r => r.id) : rules.removeRuleIds;
         await browser.declarativeNetRequest.updateSessionRules({ addRules, removeRuleIds });
         if (replaceAll) {
@@ -127,14 +131,13 @@ async function checkingDoubleSpendListener(details) {
 }
 
 function onTabCreated(tab) {
-    if (!tab.incognito) {
-        nonIncogTabIds.add(tab.id);
-        applyMode();
-    }
+    (tab.incognito ? incogTabIds : nonIncogTabIds).add(tab.id);
+    applyMode();
 }
 
 function onTabRemoved(tabId) {
     nonIncogTabIds.delete(tabId);
+    incogTabIds.delete(tabId);
 }
 
 async function applyMode() {
@@ -148,11 +151,14 @@ async function applyMode() {
     if (enabled === "incognito-only") {
         browser.tabs.onCreated.addListener(onTabCreated);
         browser.tabs.onRemoved.addListener(onTabRemoved);
-        nonIncogTabIds = new Set((await browser.tabs.query({})).filter(t => !t.incognito).map(t => t.id));
+        const tabs = await browser.tabs.query({});
+        nonIncogTabIds = new Set(tabs.filter(t => !t.incognito).map(t => t.id));
+        incogTabIds = new Set(tabs.filter(t => t.incognito).map(t => t.id));
     } else {
         browser.tabs.onCreated.removeListener(onTabCreated);
         browser.tabs.onRemoved.removeListener(onTabRemoved);
         nonIncogTabIds = null;
+        incogTabIds = null;
     }
 
     // check if the user has no tokens and will be unable to generate more
@@ -169,7 +175,8 @@ async function applyMode() {
             return;
         }
     }
-    await applyRules({ addRules: [...generalRules.addRules, ...(await loadTokensRules()).addRules] }, { replaceAll: true });
+    const catcher = nonIncogTabIds !== null ? unclassifiedTabCatcherRule([...nonIncogTabIds, ...incogTabIds]).addRules : [];
+    await applyRules({ addRules: [...generalRules.addRules, ...(await loadTokensRules()).addRules, ...catcher] }, { replaceAll: true });
     browser.webRequest.onSendHeaders.addListener(
         setPPHeadersListener,
         {
@@ -194,6 +201,7 @@ async function setDisabled() {
 
     await applyRules({ addRules: [] }, { replaceAll: true });
     nonIncogTabIds = null;
+    incogTabIds = null;
     browser.tabs.onCreated.removeListener(onTabCreated);
     browser.tabs.onRemoved.removeListener(onTabRemoved);
     browser.webRequest.onSendHeaders.removeListener(setPPHeadersListener);

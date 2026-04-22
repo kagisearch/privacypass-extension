@@ -33,7 +33,7 @@ import {
     LOCAL_REDIRECTOR_URL,
     LOCAL_REDIRECTOR_ID,
     HTTP_AUTHORIZATION_ID,
-    ONION_LOCAL_REDIRECTOR_ID
+    UNCLASSIFIED_TAB_CATCHER_ID
 } from "./anonymization.js";
 
 import {
@@ -147,52 +147,51 @@ function authorizationRule(token_tuple) {
 }
 
 // requests with `token=...` as a GET variable (ie, from session link / search bar main without extension)
-// search without the redirect rule results in
-// 1. the server sees the token sent to kagi.com (we do also send a PP token), redirects to search
-// 2. the redirect gets the cookies stripeed anyway, so kagi.com ends up served. PP token present
-// in step 1 user is deanonymised.
-// A DNR redirect can be set to strip the `token` variable from the URL.
-// However, this causes an internal redirect that does not apply any of the rules above,
-// meaning the user sends their Cookie in the headers, resulting in deanonymisation.
-
-// We address this by "triangulating" requests with a `token` GET variable.
-// We filter only such requests, strip the token variable, and send them to an endpoint on a domain different than kagi.com
-// (in this case, the local extension storage)
-// This endpoint returns 303 redirect to kagi.com/search?non_token_variables
-// This causes the browser to finally apply the above filtering rules, getting around the limitations of DNR.
-
-// We write the redirect rule using regexes. The URLTransform approach does not seem to behave properly.
-// this should only be applied for the /search endpoint, since this is the one used for the Kagi session link
+// leak the token to the server before the cookie-stripping redirect kicks in.
+// We "triangulate": redirect such requests to an extension-local page that re-navigates to the
+// original URL with `token` stripped, forcing DNR to re-apply all header rules on the second hop.
+// The full original URL is passed via the fragment so the local page can parse and clean it.
 const localRedirectorRules = {
     addRules: [{
         id: LOCAL_REDIRECTOR_ID,
         priority: 1,
         condition: {
-            regexFilter: "^https?://kagi.com/search/?\\??(.*)[\\?|&](token=[^&]*)(.*)$", // match search queries including a `token` get variable
+            regexFilter: "^.*[?&]token=.*$",
+            requestDomains: REDEMPTION_REQUEST_DOMAINS,
             resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
         },
         action: {
             type: "redirect",
             redirect: {
-                regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3` // remove only the `token` get variable
-            }
-        }
-    }, {
-        id: ONION_LOCAL_REDIRECTOR_ID,
-        priority: 1,
-        condition: {
-            regexFilter: "^https?://kagi2pv5bdcxxqla5itjzje2cgdccuwept5ub6patvmvn3qgmgjd6vid.onion/search/?\\??(.*)[\\?|&](token=[^&]*)(.*)$", // match search queries including a `token` get variable
-            resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"]
-        },
-        action: {
-            type: "redirect",
-            redirect: {
-                regexSubstitution: `${LOCAL_REDIRECTOR_URL}?\\1\\3&onion=1` // remove only the `token` get variable
+                regexSubstitution: `${LOCAL_REDIRECTOR_URL}#\\0`
             }
         }
     }],
-    removeRuleIds: [LOCAL_REDIRECTOR_ID, ONION_LOCAL_REDIRECTOR_ID]
+    removeRuleIds: [LOCAL_REDIRECTOR_ID]
 };
+
+// Catches requests from tabs we haven't yet classified as incog or not
+function unclassifiedTabCatcherRule(knownTabIds) {
+    return {
+        addRules: [{
+            id: UNCLASSIFIED_TAB_CATCHER_ID,
+            priority: 3,
+            condition: {
+                regexFilter: "^.*$",
+                requestDomains: REDEMPTION_REQUEST_DOMAINS,
+                resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"],
+                excludedTabIds: knownTabIds
+            },
+            action: {
+                type: "redirect",
+                redirect: {
+                    regexSubstitution: `${LOCAL_REDIRECTOR_URL}#\\0`
+                }
+            }
+        }],
+        removeRuleIds: [UNCLASSIFIED_TAB_CATCHER_ID]
+    };
+}
 
 const generalRules = [antiFingerprintingRules, localRedirectorRules].reduce(mergeRules);
 
@@ -215,5 +214,6 @@ export {
     mergeRules,
     authorizationRule,
     noTokensRedirectRule,
+    unclassifiedTabCatcherRule,
     range
 };
