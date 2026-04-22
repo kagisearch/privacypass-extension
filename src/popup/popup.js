@@ -21,7 +21,6 @@ const status_msg_type = document.querySelector("#status-message-type")
 const status_msg_color = document.querySelector("#status-message-color")
 const debug_available_tokens_div = document.querySelector("#available-tokens")
 const available_tokens_div = document.querySelector("#available-tokens-count")
-const settingsbtn = document.querySelector("#kagipp-settings")
 const lowtokencountdiv = document.querySelector("#low-token-count-div")
 const gentokensbtn = document.querySelector("#kagipp-generate-tokens")
 const gentokensbtndiv = document.querySelector("#kagipp-generate-tokens-div")
@@ -89,14 +88,6 @@ document.querySelector("#pp-mode-form").addEventListener("change", set_enabled)
 
 rerenderWhenStorageChanges(async () => {
   await is_enabled();
-});
-
-settingsbtn.addEventListener("click", () => {
-  browser.tabs.create({
-    url: browser.runtime.getURL("pages/settings.html"),
-  });
-
-  window.close();
 });
 
 gentokensbtn.addEventListener("click", async () => {

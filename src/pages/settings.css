@@ -66,6 +66,7 @@ section .header span {
 }
 
 .setting-button {
+  font-size: inherit;
   border: 1px solid;
   border-radius: 48px;
   background-color: #FFF;
