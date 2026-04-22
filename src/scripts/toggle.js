@@ -1,4 +1,3 @@
-
 import {
     loadTokensRules,
     setPPHeadersListener,
@@ -43,8 +42,32 @@ import {
     INVALID_TOKEN_REDIRECT_URL
 } from './anonymization.js'
 
+let nonIncogTabIds = null;
+
+async function applyRules(rules, { replaceAll = false } = {}) {
+    let addRules = rules.addRules;
+    if (nonIncogTabIds !== null) {
+        const excludedTabIds = Array.from(nonIncogTabIds);
+        addRules = addRules.map(r => ({ ...r, condition: { ...r.condition, excludedTabIds } }));
+        const removeRuleIds = replaceAll ? (await browser.declarativeNetRequest.getSessionRules()).map(r => r.id) : rules.removeRuleIds;
+        await browser.declarativeNetRequest.updateSessionRules({ addRules, removeRuleIds });
+        if (replaceAll) {
+            const staleIds = (await browser.declarativeNetRequest.getDynamicRules()).map(r => r.id);
+            await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds: staleIds });
+        }
+    } else {
+        const removeRuleIds = replaceAll ? (await browser.declarativeNetRequest.getDynamicRules()).map(r => r.id) : rules.removeRuleIds;
+        await browser.declarativeNetRequest.updateDynamicRules({ addRules, removeRuleIds });
+        if (replaceAll) {
+            const staleIds = (await browser.declarativeNetRequest.getSessionRules()).map(r => r.id);
+            await browser.declarativeNetRequest.updateSessionRules({ removeRuleIds: staleIds });
+        }
+    }
+}
+
 async function checkingDoubleSpendListener(details) {
     if (!REDEMPTION_ENDPOINT_RE.test(details.url)) return;
+    if (nonIncogTabIds?.has(details.tabId)) return;
     if (VERBOSE) {
         debug_log(`checkingDoubleSpendListener: ${details.statusCode} ${details.url}`)
     }
@@ -57,7 +80,7 @@ async function checkingDoubleSpendListener(details) {
         let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
         ready_tokens.pop();
         await browser.storage.local.set({ ready_tokens });
-        await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
+        await applyRules(await loadTokensRules());
         /*
          * The status at this line is:
          * - an error page is shown (or no results displayed in case of a /socket/ request failing)
@@ -103,10 +126,35 @@ async function checkingDoubleSpendListener(details) {
     }
 }
 
-async function setEnabled() {
-    if (VERBOSE) {
-        debug_log("setEnabled")
+function onTabCreated(tab) {
+    if (!tab.incognito) {
+        nonIncogTabIds.add(tab.id);
+        applyMode();
     }
+}
+
+function onTabRemoved(tabId) {
+    nonIncogTabIds.delete(tabId);
+}
+
+async function applyMode() {
+    const { enabled } = await browser.storage.local.get({ enabled: true });
+
+    if (enabled === false) {
+        await setDisabled();
+        return;
+    }
+
+    if (enabled === "incognito-only") {
+        browser.tabs.onCreated.addListener(onTabCreated);
+        browser.tabs.onRemoved.addListener(onTabRemoved);
+        nonIncogTabIds = new Set((await browser.tabs.query({})).filter(t => !t.incognito).map(t => t.id));
+    } else {
+        browser.tabs.onCreated.removeListener(onTabCreated);
+        browser.tabs.onRemoved.removeListener(onTabRemoved);
+        nonIncogTabIds = null;
+    }
+
     // check if the user has no tokens and will be unable to generate more
     const n_tokens = await countTokens();
     if (n_tokens <= 0) {
@@ -116,16 +164,12 @@ async function setEnabled() {
         } catch (ex) {
             await logError(`${ex}`);
             await browser.storage.local.set({ 'enabled': false })
-            await update_extension_icon(false);
+            await applyMode();
             await sendPPModeStatus();
             return;
         }
     }
-    let existingRules = await browser.declarativeNetRequest.getDynamicRules();
-    await browser.declarativeNetRequest.updateDynamicRules({
-        addRules: [...generalRules.addRules, ...(await loadTokensRules()).addRules],
-        removeRuleIds: existingRules.map(r => r.id), // Must cover *all* rules, including from old versions of the extension
-    });
+    await applyRules({ addRules: [...generalRules.addRules, ...(await loadTokensRules()).addRules] }, { replaceAll: true });
     browser.webRequest.onSendHeaders.addListener(
         setPPHeadersListener,
         {
@@ -140,7 +184,7 @@ async function setEnabled() {
         },
         []
     )
-    await update_extension_icon(true);
+    await update_extension_icon(enabled);
 }
 
 async function setDisabled() {
@@ -148,15 +192,17 @@ async function setDisabled() {
         debug_log("setDisabled")
     }
 
-    let existingRules = await browser.declarativeNetRequest.getDynamicRules();
-    await browser.declarativeNetRequest.updateDynamicRules({ removeRuleIds: existingRules.map(r => r.id) });
-
+    await applyRules({ addRules: [] }, { replaceAll: true });
+    nonIncogTabIds = null;
+    browser.tabs.onCreated.removeListener(onTabCreated);
+    browser.tabs.onRemoved.removeListener(onTabRemoved);
     browser.webRequest.onSendHeaders.removeListener(setPPHeadersListener);
     browser.webRequest.onCompleted.removeListener(checkingDoubleSpendListener);
     await update_extension_icon(false);
 }
 
 export {
-    setEnabled,
-    setDisabled
+    applyMode,
+    applyRules,
+    nonIncogTabIds,
 };

@@ -32,6 +32,11 @@ import {
 } from './headers.js'
 
 import {
+    applyRules,
+    nonIncogTabIds,
+} from './toggle.js'
+
+import {
     OVER_QUOTA_ERROR,
     FAILED_LOADING_NEXT_TOKEN_ERROR
 } from './errors.js'
@@ -61,7 +66,7 @@ async function forceLoadNextTokens() {
     await browser.storage.local.set({ ready_tokens });
     const { enabled } = await browser.storage.local.get({ 'enabled': true });
     if (enabled) {
-        await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
+        await applyRules(await loadTokensRules());
     }
 }
 
@@ -92,13 +97,14 @@ async function genTokens() {
     // if enabled, load next token
     const { enabled } = await browser.storage.local.get({ 'enabled': true });
     if (enabled) {
-        await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
+        await applyRules(await loadTokensRules());
     }
     await clearError();
 }
 
 async function setPPHeadersListener(details) {
     if (!REDEMPTION_ENDPOINT_RE.test(details.url)) return;
+    if (nonIncogTabIds?.has(details.tabId)) return;
     if (VERBOSE) {
         debug_log(`setPPHeadersListener: ${details.statusCode} ${details.url}`)
         const remiaining_tokens = await countTokens();
@@ -107,7 +113,7 @@ async function setPPHeadersListener(details) {
     let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
     ready_tokens.pop();
     await browser.storage.local.set({ ready_tokens });
-    await browser.declarativeNetRequest.updateDynamicRules(await loadTokensRules());
+    await applyRules(await loadTokensRules());
 }
 
 export {

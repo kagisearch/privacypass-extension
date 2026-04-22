@@ -4,10 +4,6 @@ import {
 } from './popup/utils.js'
 
 import {
-  update_extension_icon
-} from './scripts/icon.js'
-
-import {
   VERBOSE,
 } from './scripts/config.js'
 
@@ -17,8 +13,7 @@ import {
 } from './scripts/generation_and_redemption.js';
 
 import {
-  setEnabled,
-  setDisabled
+  applyMode,
 } from './scripts/toggle.js'
 
 import {
@@ -41,12 +36,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     debug_log(`onMessage: ${message}`);
   }
   if (message == "enabled_changed") {
-    const { enabled } = await browser.storage.local.get({ 'enabled': true });
-    if (enabled) {
-      await setEnabled();
-    } else {
-      await setDisabled();
-    }
+    await applyMode();
     // when enabled status changed, inform Kagi Search extension
     await sendPPModeStatus();
   } else if (message == "fetch_tokens") {
@@ -74,12 +64,7 @@ async function onStart() {
     debug_log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
   }
   console.log(`onStart: ${new Date().toISOString().match(/(\d{2}:){2}\d{2}/)[0]}`);
-  const { enabled } = await browser.storage.local.get({ 'enabled': true });
-  if (enabled) {
-    await setEnabled();
-  }
-  // refresh extension icon
-  await update_extension_icon(enabled);
+  await applyMode();
   // when coming online, send status to Kagi Search extension
   await sendPPModeStatus();
 }

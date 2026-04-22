@@ -1,12 +1,7 @@
 // This file includes code useful while debugging the extension.
 // Removing this file will disable the code and related UI elements
 
-import {
-  set_enabled
-} from './enable_toggle.js'
-
 const debugactionsdiv = document.querySelector("#debug-actions")
-const enabled_checkbox = document.querySelector("#kagipp-enabled")
 
 // attempt to fetch tokens
 async function gen_tokens() {
@@ -17,8 +12,8 @@ async function erase_tokens() {
   // clear tokens
   await browser.storage.local.set({ "ready_tokens": [] })
   // remove Authorization header
-  enabled_checkbox.checked = false;
-  await set_enabled();
+  await browser.storage.local.set({ enabled: false });
+  browser.runtime.sendMessage("enabled_changed");
 }
 
 function enable_debug_buttons() {

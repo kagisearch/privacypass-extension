@@ -16,15 +16,12 @@
     </div>
   </div>
   <!-- Main toggle -->
-  <div class="anonymise-search">
-    Authenticate via Privacy Pass
-    <div class="toggle">
-      <label class="switch">
-        <input id="kagipp-enabled" type="checkbox" />
-        <div class="slider"></div>
-      </label>
-    </div>
-  </div>
+  <div>Authenticate via Privacy Pass</div>
+  <form id="pp-mode-form">
+    <label><input type="radio" name="pp-mode" value="true"> On</label>
+    <label><input type="radio" name="pp-mode" value="incognito-only"> Incognito only</label>
+    <label><input type="radio" name="pp-mode" value="false"> Off</label>
+  </form>
   <div id="low-token-area" hidden>
     <!-- Low token bar -->
     <div id="low-token-count-div">

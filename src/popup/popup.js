@@ -23,7 +23,6 @@ const status_msg_type = document.querySelector("#status-message-type")
 const status_msg_color = document.querySelector("#status-message-color")
 const debug_available_tokens_div = document.querySelector("#available-tokens")
 const available_tokens_div = document.querySelector("#available-tokens-count")
-const enabled_checkbox = document.querySelector("#kagipp-enabled")
 const settingsbtn = document.querySelector("#kagipp-settings")
 const lowtokencountdiv = document.querySelector("#low-token-area")
 const gentokensbtn = document.querySelector("#kagipp-generate-tokens")
@@ -88,18 +87,11 @@ rerenderWhenStorageChanges(async () => {
 
 // ----- Enabled / Disabled toggle
 
-enabled_checkbox.addEventListener("change", set_enabled)
+document.querySelector("#pp-mode-form").addEventListener("change", set_enabled)
 
 rerenderWhenStorageChanges(async () => {
   await is_enabled();
 });
-
-// TODO(jacob): i expect this to go away soon
-// add CSS transition style
-setTimeout(() => {
-  let sheet = window.document.styleSheets[0];
-  sheet.insertRule('label.switch > div.slider { transition: all 0.3s linear; }', sheet.cssRules.length);
-}, 300)
 
 settingsbtn.addEventListener("click", () => {
   browser.tabs.create({

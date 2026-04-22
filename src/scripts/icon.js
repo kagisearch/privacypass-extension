@@ -1,5 +1,5 @@
 async function update_extension_icon(enabled) {
-  const path = enabled ? "enabled" : "disabled";
+  const path = enabled === "incognito-only" ? "incognito-only" : enabled ? "enabled" : "disabled";
   await chrome.action.setIcon({
     path: {
       16: `../images/icons/${path}/icon-16.png`,
