@@ -1,5 +1,4 @@
 import {
-    VERBOSE,
     LOW_TOKEN_COUNT,
     GEN_TOKENS_ON_LOW_COUNT,
     GEN_TOKENS_ON_ZERO_COUNT,
@@ -16,10 +15,6 @@ import {
     logStatus,
     clearError
 } from "../popup/utils.js";
-
-import {
-    debug_log
-} from './debug_log.js'
 
 import {
     countTokens,
@@ -71,9 +66,6 @@ async function forceLoadNextTokens() {
 }
 
 async function genTokens() {
-    if (VERBOSE) {
-        debug_log('genTokens')
-    }
     await logStatus("generating new tokens", 'wait')
     // try to fetch the tokens via .onion domain
     // if it fails and you are on Tor, then you probably are online, will fail on Kagi.com too
@@ -105,11 +97,6 @@ async function genTokens() {
 async function setPPHeadersListener(details) {
     if (!REDEMPTION_ENDPOINT_RE.test(details.url)) return;
     if (nonIncogTabIds?.has(details.tabId)) return;
-    if (VERBOSE) {
-        debug_log(`setPPHeadersListener: ${details.statusCode} ${details.url}`)
-        const remiaining_tokens = await countTokens();
-        debug_log(`remaining tokens: ${remiaining_tokens}`)
-    }
     let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
     ready_tokens.pop();
     await browser.storage.local.set({ ready_tokens });

@@ -15,7 +15,6 @@ import {
 } from './icon.js'
 
 import {
-    VERBOSE,
     WEBREQUEST_REDEMPTION_ENDPOINTS,
     REDEMPTION_ENDPOINT_RE,
 } from './config.js'
@@ -35,10 +34,6 @@ import {
 import {
     sendPPModeStatus,
 } from './communication_with_main_extension.js'
-
-import {
-    debug_log
-} from './debug_log.js'
 
 import {
     INVALID_TOKEN_REDIRECT_URL
@@ -72,14 +67,8 @@ async function applyRules(rules, { replaceAll = false } = {}) {
 async function checkingDoubleSpendListener(details) {
     if (!REDEMPTION_ENDPOINT_RE.test(details.url)) return;
     if (nonIncogTabIds?.has(details.tabId)) return;
-    if (VERBOSE) {
-        debug_log(`checkingDoubleSpendListener: ${details.statusCode} ${details.url}`)
-    }
     if (details.statusCode == 401) {
         // unauthorized, likely it's a doublespend
-        if (VERBOSE) {
-            debug_log(`> loading a new token for ${details.url}`)
-        }
         // a token was double spent, load the next one
         let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
         ready_tokens.pop();
@@ -106,27 +95,16 @@ async function checkingDoubleSpendListener(details) {
         await browser.storage.local.set({ 'last_double_spend': now }); // update the last_double_spend information
         if (gap > 60 * 1000) { // if the last seen doublespend was more than 1 minute ago
             // likely one-off double-spend, reload the current page
-            if (VERBOSE) {
-                debug_log("checkingDoubleSpendListener: one-off double-spend, reloading");
-            }
             const active_tabs_cur_window = await chrome.tabs.query({ active: true, currentWindow: true });
             const cur_tab = active_tabs_cur_window[0];
             if (cur_tab && cur_tab.id && cur_tab.id == details.tabId) {
                 await browser.tabs.reload(details.tabId, { bypassCache: true });
-            }
-        } else {
-            if (VERBOSE) {
-                debug_log("checkingDoubleSpendListener: repeated double-spend, not reloading");
             }
         }
     } else if (details.statusCode == 403) {
         // let the user know that their tokens are stale
         // realistically, this should only happen to devs debugging against staging
         browser.tabs.create({ url: INVALID_TOKEN_REDIRECT_URL });
-    } else {
-        if (VERBOSE) {
-            debug_log(`> ok loading ${details.url}`)
-        }
     }
 }
 
@@ -195,10 +173,6 @@ async function applyMode() {
 }
 
 async function setDisabled() {
-    if (VERBOSE) {
-        debug_log("setDisabled")
-    }
-
     await applyRules({ addRules: [] }, { replaceAll: true });
     nonIncogTabIds = null;
     incogTabIds = null;

@@ -1,6 +1,4 @@
 import {
-  VERBOSE,
-  TOKENS_TO_STASH,
   LOW_TOKEN_COUNT,
 } from '../scripts/config.js'
 
