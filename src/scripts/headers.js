@@ -162,7 +162,7 @@ function unclassifiedTabCatcherRule(knownTabIds) {
             condition: {
                 regexFilter: "^.*$",
                 requestDomains: REDEMPTION_REQUEST_DOMAINS,
-                resourceTypes: ["main_frame", "sub_frame", "xmlhttprequest"],
+                resourceTypes: ["main_frame", "sub_frame"],
                 excludedTabIds: knownTabIds
             },
             action: {
