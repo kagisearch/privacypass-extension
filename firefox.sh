@@ -25,6 +25,8 @@ do
 done
 cp "src/firefox_manifest.json" "$unpacked_dir/manifest.json"
 
+rm "$unpacked_dir/pages/redirector.html" "$unpacked_dir/pages/redirector.js"
+
 rm "$outputfn.zip" || true
 rm "$outputfn.xpi" || true
 cd "$unpacked_dir"; zip -r "../$outputfn.zip" * ; cd ..;

@@ -50,11 +50,13 @@ const NON_SAFARI_DEANONYMISING_HEADERS = {
 
 export const ANONYMIZING_RULESET = isSafari ? UNIVERSAL_DEANONYMIZING_HEADERS : Object.assign({}, UNIVERSAL_DEANONYMIZING_HEADERS, NON_SAFARI_DEANONYMISING_HEADERS);
 export const ANONYMIZING_RULES_OFFSET = 20;
-export const ACCEPT_EVENT_STREAM_OFFSET = 150;
-export const ACCEPT_QUICK_ANSWER_OFFSET = 152;
-export const ACCEPT_QUICK_ANSWER_DOC_OFFSET = 154;
-export const ACCEPT_TRANSLATE_JSON_OFFSET = 156;
-export const ACCEPT_TRANSLATE_TURSNTILE_OFFSET = 158;
+export const ACCEPT_OVERRIDES = [
+    { id: 150, path: "/socket/", accept: "text/event-stream" },
+    { id: 152, path: "/mother/context", accept: "application/vnd.kagi.stream" },
+    { id: 154, path: "/mother/summarize_document", accept: "application/vnd.kagi.stream" },
+    { id: 156, path: "/?/translate", subdomain: "translate", accept: "application/json" },
+    { id: 158, path: "/api/auth/turnstile", subdomain: "translate", accept: "*/*" },
+];
 export const KAGI_HTML_SLASH_REDIRECT = 180;
 export const ONION_HTML_SLASH_REDIRECT = 182;
 

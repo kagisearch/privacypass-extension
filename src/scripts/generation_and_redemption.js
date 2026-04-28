@@ -3,6 +3,7 @@ import {
     GEN_TOKENS_ON_LOW_COUNT,
     GEN_TOKENS_ON_ZERO_COUNT,
     REDEMPTION_ENDPOINT_RE,
+    IS_FIREFOX,
 } from './config.js'
 
 import {
@@ -59,9 +60,11 @@ async function forceLoadNextTokens() {
     let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
     ready_tokens.pop();
     await browser.storage.local.set({ ready_tokens });
-    const { enabled } = await browser.storage.local.get({ 'enabled': true });
-    if (enabled) {
-        await applyRules(await loadTokensRules());
+    if (!IS_FIREFOX) {
+        const { enabled } = await browser.storage.local.get({ 'enabled': true });
+        if (enabled) {
+            await applyRules(await loadTokensRules());
+        }
     }
 }
 
@@ -86,10 +89,12 @@ async function genTokens() {
     const { ready_tokens } = await chrome.storage.local.get({ "ready_tokens": [] })
     const new_tokens = tokens.map((tok) => [tok, current_time]);
     await chrome.storage.local.set({ "ready_tokens": new_tokens.concat(ready_tokens) })
-    // if enabled, load next token
-    const { enabled } = await browser.storage.local.get({ 'enabled': true });
-    if (enabled) {
-        await applyRules(await loadTokensRules());
+    if (!IS_FIREFOX) {
+        // if enabled, load next token
+        const { enabled } = await browser.storage.local.get({ 'enabled': true });
+        if (enabled) {
+            await applyRules(await loadTokensRules());
+        }
     }
     await clearError();
 }

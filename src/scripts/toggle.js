@@ -17,7 +17,13 @@ import {
 import {
     WEBREQUEST_REDEMPTION_ENDPOINTS,
     REDEMPTION_ENDPOINT_RE,
+    IS_FIREFOX,
 } from './config.js'
+
+import {
+    addBlockingListeners,
+    removeBlockingListeners,
+} from './blocking_webrequest.js'
 
 import {
     get_kagi_session
@@ -73,7 +79,9 @@ async function checkingDoubleSpendListener(details) {
         let { ready_tokens } = await browser.storage.local.get({ ready_tokens: [] });
         ready_tokens.pop();
         await browser.storage.local.set({ ready_tokens });
-        await applyRules(await loadTokensRules());
+        if (!IS_FIREFOX) {
+            await applyRules(await loadTokensRules());
+        }
         /*
          * The status at this line is:
          * - an error page is shown (or no results displayed in case of a /socket/ request failing)
@@ -126,17 +134,19 @@ async function applyMode() {
         return;
     }
 
-    if (enabled === "incognito-only") {
-        browser.tabs.onCreated.addListener(onTabCreated);
-        browser.tabs.onRemoved.addListener(onTabRemoved);
-        const tabs = await browser.tabs.query({});
-        nonIncogTabIds = new Set(tabs.filter(t => !t.incognito).map(t => t.id));
-        incogTabIds = new Set(tabs.filter(t => t.incognito).map(t => t.id));
-    } else {
-        browser.tabs.onCreated.removeListener(onTabCreated);
-        browser.tabs.onRemoved.removeListener(onTabRemoved);
-        nonIncogTabIds = null;
-        incogTabIds = null;
+    if (!IS_FIREFOX) {
+        if (enabled === "incognito-only") {
+            browser.tabs.onCreated.addListener(onTabCreated);
+            browser.tabs.onRemoved.addListener(onTabRemoved);
+            const tabs = await browser.tabs.query({});
+            nonIncogTabIds = new Set(tabs.filter(t => !t.incognito).map(t => t.id));
+            incogTabIds = new Set(tabs.filter(t => t.incognito).map(t => t.id));
+        } else {
+            browser.tabs.onCreated.removeListener(onTabCreated);
+            browser.tabs.onRemoved.removeListener(onTabRemoved);
+            nonIncogTabIds = null;
+            incogTabIds = null;
+        }
     }
 
     // check if the user has no tokens and will be unable to generate more
@@ -153,22 +163,35 @@ async function applyMode() {
             return;
         }
     }
-    const catcher = nonIncogTabIds !== null ? unclassifiedTabCatcherRule([...nonIncogTabIds, ...incogTabIds]).addRules : [];
-    await applyRules({ addRules: [...generalRules.addRules, ...(await loadTokensRules()).addRules, ...catcher] }, { replaceAll: true });
-    browser.webRequest.onSendHeaders.addListener(
-        setPPHeadersListener,
-        {
-            urls: WEBREQUEST_REDEMPTION_ENDPOINTS
-        },
-        []
-    )
-    browser.webRequest.onCompleted.addListener(
-        checkingDoubleSpendListener,
-        {
-            urls: WEBREQUEST_REDEMPTION_ENDPOINTS
-        },
-        []
-    )
+    if (IS_FIREFOX) {
+        addBlockingListeners(enabled === "incognito-only");
+        await applyRules({ addRules: [] }, { replaceAll: true });
+        browser.webRequest.onCompleted.addListener(
+            checkingDoubleSpendListener,
+            {
+                urls: WEBREQUEST_REDEMPTION_ENDPOINTS,
+                ...(enabled === "incognito-only" ? { incognito: true } : {})
+            },
+            []
+        );
+    } else {
+        const catcher = nonIncogTabIds !== null ? unclassifiedTabCatcherRule([...nonIncogTabIds, ...incogTabIds]).addRules : [];
+        await applyRules({ addRules: [...generalRules.addRules, ...(await loadTokensRules()).addRules, ...catcher] }, { replaceAll: true });
+        browser.webRequest.onSendHeaders.addListener(
+            setPPHeadersListener,
+            {
+                urls: WEBREQUEST_REDEMPTION_ENDPOINTS
+            },
+            []
+        )
+        browser.webRequest.onCompleted.addListener(
+            checkingDoubleSpendListener,
+            {
+                urls: WEBREQUEST_REDEMPTION_ENDPOINTS
+            },
+            []
+        )
+    }
     await update_extension_icon(enabled);
 }
 
@@ -180,6 +203,7 @@ async function setDisabled() {
     browser.tabs.onRemoved.removeListener(onTabRemoved);
     browser.webRequest.onSendHeaders.removeListener(setPPHeadersListener);
     browser.webRequest.onCompleted.removeListener(checkingDoubleSpendListener);
+    removeBlockingListeners();
     await update_extension_icon(false);
 }
 

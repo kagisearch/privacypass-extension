@@ -19,13 +19,7 @@ In particular, some caveats:
 */
 
 import {
-    ACCEPT_EVENT_STREAM_OFFSET,
-    ACCEPT_TRANSLATE_JSON_OFFSET,
-    ACCEPT_QUICK_ANSWER_OFFSET,
-    ACCEPT_QUICK_ANSWER_DOC_OFFSET,
-    ACCEPT_TRANSLATE_TURSNTILE_OFFSET,
-    KAGI_HTML_SLASH_REDIRECT,
-    ONION_HTML_SLASH_REDIRECT,
+    ACCEPT_OVERRIDES,
     ANONYMIZING_RULES_OFFSET,
     ANONYMIZING_RULESET,
     REFERER_RULESET,
@@ -79,19 +73,15 @@ function range(size, startAt = 0) {
     return [...Array(size).keys()].map(i => i + startAt);
 }
 
-function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "", rulePriority = 1, subDomain = "") {
+function compileHeaderRuleset(ruleset, offset, ruleEndpointPath = "/", rulePriority = 1, subDomain = "") {
     let add_rules = [];
     let nrules = offset; // rule separation
     const full_domain_port = (subDomain != "") ? `${subDomain}.${DOMAIN_PORT}` : DOMAIN_PORT;
     const full_onion_domain_port = (subDomain != "") ? `${subDomain}.${ONION_DOMAIN_PORT}` : ONION_DOMAIN_PORT;
-    // note, using ||kagi.com will cover subdomains such as translate.kagi.com. this is useful for blanket rules such as anonymisation.
-    // subdomain-specific rules should pass subDomain instead
-    const endpoint = (ruleEndpointPath != "") ? `||${full_domain_port}/${ruleEndpointPath}` : `||${full_domain_port}/`;
-    const onion_endpoint = (ruleEndpointPath != "") ? `||${full_onion_domain_port}/${ruleEndpointPath}` : `||${full_onion_domain_port}/`;
 
-    // create the rules to deal with the headers that deanonymise the user
-    add_rules.push(headerRule(ruleset, endpoint, ++nrules, rulePriority, true));
-    add_rules.push(headerRule(ruleset, onion_endpoint, ++nrules, rulePriority, true));
+    // note, using ||kagi.com will cover subdomains such as translate.kagi.com. this is useful for blanket rules such as anonymisation.
+    add_rules.push(headerRule(ruleset, `||${full_domain_port}${ruleEndpointPath}`, ++nrules, rulePriority, true));
+    add_rules.push(headerRule(ruleset, `||${full_onion_domain_port}${ruleEndpointPath}`, ++nrules, rulePriority, true));
 
     let rules = {
         addRules: add_rules,
@@ -110,14 +100,7 @@ function mergeRules(a, b) {
 
 const antiFingerprintingRules = [
     compileHeaderRuleset({ ...ANONYMIZING_RULESET, ...REFERER_RULESET }, ANONYMIZING_RULES_OFFSET),
-    // just for /socket/* endpoints, force Accept: "text/event-stream"
-    compileHeaderRuleset({ Accept: "text/event-stream" }, ACCEPT_EVENT_STREAM_OFFSET, "socket/", 2),
-    // support for quick answer and summarize document from search results page
-    compileHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_OFFSET, "mother/context", 2),
-    compileHeaderRuleset({ Accept: "application/vnd.kagi.stream" }, ACCEPT_QUICK_ANSWER_DOC_OFFSET, "mother/summarize_document", 2),
-    // just for translate.kagi.com/?/translate/ to accept "application/json" and turnstile to */*
-    compileHeaderRuleset({ Accept: "application/json" }, ACCEPT_TRANSLATE_JSON_OFFSET, "?/translate", 2, "translate"),
-    compileHeaderRuleset({ Accept: "*/*" }, ACCEPT_TRANSLATE_TURSNTILE_OFFSET, "api/auth/turnstile", 2, "translate"),
+    ...ACCEPT_OVERRIDES.map(o => compileHeaderRuleset({ Accept: o.accept }, o.id, o.path, 2, o.subdomain ?? "")),
 ].reduce(mergeRules);
 
 

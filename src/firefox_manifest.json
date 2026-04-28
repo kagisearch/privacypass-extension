@@ -21,6 +21,7 @@
     "storage",
     "alarms",
     "webRequest",
+    "webRequestBlocking",
     "cookies"
   ],
   "host_permissions": [
