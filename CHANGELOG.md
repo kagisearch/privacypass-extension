@@ -1,7 +1,7 @@
 
 # Change Log
 
-## [1.0.9] - 2026-04-22
+## [1.0.9] - 2026-04-28
 
 ### Added
 
@@ -15,6 +15,7 @@
 ### Fixed
 
 - Fix special characters being mishandled in search queries that go through the redirect flow (#23).
+- Work around Firefox bug 2033905 breaking searching from highlighted text's context menu.
 
 ## [1.0.8] - 2025-10-03
 
