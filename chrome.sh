@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-DEBUG=$1
 BUILDDIR=${BUILDDIR:-build}
 
 set -xeou pipefail
@@ -24,13 +23,6 @@ do
   cp -r "src/$item" "$unpacked_dir"
 done
 cp "src/chrome_manifest.json" "$unpacked_dir/manifest.json"
-
-if [ -z $DEBUG ];
-then
-  # RELEASE: disable (by removing) debug buttons
-  rm "$unpacked_dir/popup/debug.js"
-  touch "$unpacked_dir/popup/debug.js"
-fi
 
 rm "$outputfn" || true
 (cd "$unpacked_dir"; zip -r "../$outputfn" *)

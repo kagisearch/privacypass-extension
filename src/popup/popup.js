@@ -19,7 +19,6 @@ const status_msg = document.querySelector("#status-message")
 const status_msg_div = document.querySelector("#status-message-div")
 const status_msg_type = document.querySelector("#status-message-type")
 const status_msg_color = document.querySelector("#status-message-color")
-const debug_available_tokens_div = document.querySelector("#available-tokens")
 const available_tokens_div = document.querySelector("#available-tokens-count")
 const lowtokencountdiv = document.querySelector("#low-token-count-div")
 const gentokensbtn = document.querySelector("#kagipp-generate-tokens")
@@ -71,9 +70,6 @@ rerenderWhenStorageChanges(async () => {
 
 function display_token_count(n_tokens) {
   available_tokens_div.textContent = n_tokens;
-  if (debug_available_tokens_div) {
-    debug_available_tokens_div.textContent = n_tokens;
-  }
   lowtokencountdiv.hidden = gentokensbtndiv.hidden = n_tokens >= LOW_TOKEN_COUNT;
 }
 

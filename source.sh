@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-DEBUG=$1
 SRCRELEASEDIR=${SRCRELEASEDIR:-source_release}
 
 set -xeou pipefail
@@ -42,13 +41,6 @@ do
   cp -r "$item" "$unpacked_dir/privacypass-lib"
 done
 (cd "$unpacked_dir/privacypass-lib/src/" ; bash clean.sh)
-
-if [ -z $DEBUG ];
-then
-  # RELEASE: disable (by removing) debug buttons
-  rm "$unpacked_dir/src/popup/debug.js"
-  touch "$unpacked_dir/src/popup/debug.js"
-fi
 
 rm "$outputfn.zip" || true
 rm "$outputfn.xpi" || true

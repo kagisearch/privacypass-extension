@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-DEBUG=$1
-
 set -xeou pipefail
 
 rm -rf build
@@ -15,5 +13,5 @@ git submodule init && git submodule update
 rm -rf src/scripts/kagippjs
 cp -r privacypass-lib/src/wasm/pkg src/scripts/kagippjs
 
-BUILDDIR=build/chrome bash chrome.sh $DEBUG
-BUILDDIR=build/firefox bash firefox.sh $DEBUG
+BUILDDIR=build/chrome bash chrome.sh
+BUILDDIR=build/firefox bash firefox.sh
