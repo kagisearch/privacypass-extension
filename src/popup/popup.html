@@ -13,6 +13,11 @@
     <div id="kagi-logo"></div>
     <a id="kagipp-settings" href="/pages/settings.html" target="_blank"><div id="settings-icon"></div></a>
   </div>
+  <!-- Host permissions notice -->
+  <div id="host-perms-message" hidden>
+    <p>This extension needs permission to access Kagi's sites.</p>
+    <button id="host-perms-grant" class="button">Grant access</button>
+  </div>
   <!-- Main toggle -->
   <div>Authenticate via Privacy Pass</div>
   <form id="pp-mode-form">
@@ -40,9 +45,7 @@
       </div>
     </div>
     <div id="status-message-div" hidden>
-      <span id="status-message">
-        status_message
-      </span>
+      <div id="status-message"></div>
       <div id="status-message-close"><img src="../images/close.svg" /></div>
     </div>
   </div>

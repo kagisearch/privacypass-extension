@@ -1,6 +1,12 @@
 
 # Change Log
 
+## [1.0.10] - 2026-05-18
+
+### Added
+
+- Notify user if host_permissions haven't been granted.
+
 ## [1.0.9] - 2026-04-28
 
 ### Added

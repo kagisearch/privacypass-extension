@@ -24,6 +24,7 @@ const lowtokencountdiv = document.querySelector("#low-token-count-div")
 const gentokensbtn = document.querySelector("#kagipp-generate-tokens")
 const gentokensbtndiv = document.querySelector("#kagipp-generate-tokens-div")
 const closeerrorbtn = document.querySelector("#status-message-close")
+const hostPermsMessage = document.querySelector("#host-perms-message")
 
 // ---- UI utilities
 
@@ -95,3 +96,12 @@ gentokensbtn.addEventListener("click", async () => {
 closeerrorbtn.addEventListener("click", function () {
   clearError();
 })
+
+// ---- Permissions check
+
+hostPermsMessage.hidden = await browser.permissions.contains({ origins: browser.runtime.getManifest().host_permissions });
+
+document.querySelector("#host-perms-grant").addEventListener("click", () => {
+  browser.permissions.request({ origins: browser.runtime.getManifest().host_permissions });
+  close();
+});
