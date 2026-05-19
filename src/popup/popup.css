@@ -155,6 +155,7 @@ body {
 }
 
 #host-perms-message,
+#incognito-perms-message,
 #status-message {
   padding: 8px 12px;
   align-items: center;

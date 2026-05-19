@@ -1,6 +1,12 @@
 
 # Change Log
 
+## [1.0.11] - 2026-05-19
+
+### Added
+
+- Notify user if incognito access hasn't been granted.
+
 ## [1.0.10] - 2026-05-18
 
 ### Added

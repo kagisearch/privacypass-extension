@@ -25,6 +25,7 @@ const gentokensbtn = document.querySelector("#kagipp-generate-tokens")
 const gentokensbtndiv = document.querySelector("#kagipp-generate-tokens-div")
 const closeerrorbtn = document.querySelector("#status-message-close")
 const hostPermsMessage = document.querySelector("#host-perms-message")
+const incognitoPermsMessage = document.querySelector("#incognito-perms-message")
 
 // ---- UI utilities
 
@@ -97,7 +98,7 @@ closeerrorbtn.addEventListener("click", function () {
   clearError();
 })
 
-// ---- Permissions check
+// ---- Permission checks
 
 hostPermsMessage.hidden = await browser.permissions.contains({ origins: browser.runtime.getManifest().host_permissions });
 
@@ -105,3 +106,5 @@ document.querySelector("#host-perms-grant").addEventListener("click", () => {
   browser.permissions.request({ origins: browser.runtime.getManifest().host_permissions });
   close();
 });
+
+incognitoPermsMessage.hidden = await browser.extension.isAllowedIncognitoAccess();
