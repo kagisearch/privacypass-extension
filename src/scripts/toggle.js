@@ -21,8 +21,7 @@ import {
 } from './config.js'
 
 import {
-    addBlockingListeners,
-    removeBlockingListeners,
+    setBlockingListeners,
 } from './blocking_webrequest.js'
 
 import {
@@ -164,7 +163,7 @@ async function applyMode() {
         }
     }
     if (IS_FIREFOX) {
-        addBlockingListeners(enabled === "incognito-only");
+        setBlockingListeners(enabled);
         await applyRules({ addRules: [] }, { replaceAll: true });
         browser.webRequest.onCompleted.addListener(
             checkingDoubleSpendListener,
@@ -203,7 +202,7 @@ async function setDisabled() {
     browser.tabs.onRemoved.removeListener(onTabRemoved);
     browser.webRequest.onSendHeaders.removeListener(setPPHeadersListener);
     browser.webRequest.onCompleted.removeListener(checkingDoubleSpendListener);
-    removeBlockingListeners();
+    setBlockingListeners(false);
     await update_extension_icon(false);
 }
 

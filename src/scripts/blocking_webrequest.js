@@ -42,6 +42,17 @@ function acceptFor(url) {
     return null;
 }
 
+const firstEnabledValue = Promise.withResolvers();
+function checkEnabledThen(next) {
+    return async (details) => {
+        const enabled = await firstEnabledValue.promise;
+        if (!enabled || (enabled === "incognito-only" && !details.incognito)) {
+            return;
+        }
+        return await next(details);
+    }
+}
+
 async function onBeforeRequestListener(details) {
     if (/[?&]token=/.test(details.url)) {
         const u = new URL(details.url);
@@ -81,22 +92,29 @@ async function onBeforeSendHeadersListener(details) {
     return { requestHeaders: headers };
 }
 
-export function addBlockingListeners(incogOnly) {
-    removeBlockingListeners();
-    const incog = incogOnly ? { incognito: true } : {};
+const syncInitOnBeforeRequestListener = checkEnabledThen(onBeforeRequestListener);
+const syncInitOnBeforeSendHeadersListener = checkEnabledThen(onBeforeSendHeadersListener);
+
+export function setBlockingListeners(enabled) {
+    if (enabled !== "sync-init") {
+        firstEnabledValue.resolve(enabled);
+    }
+    browser.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
+    browser.webRequest.onBeforeRequest.removeListener(syncInitOnBeforeRequestListener);
+    browser.webRequest.onBeforeSendHeaders.removeListener(onBeforeSendHeadersListener);
+    browser.webRequest.onBeforeSendHeaders.removeListener(syncInitOnBeforeSendHeadersListener);
+    if (enabled === false) {
+        return;
+    }
+    const incog = enabled === "incognito-only" ? { incognito: true } : {};
     browser.webRequest.onBeforeRequest.addListener(
-        onBeforeRequestListener,
+        enabled === "sync-init" ? syncInitOnBeforeRequestListener : onBeforeRequestListener,
         { urls: BLOCKING_URLS, types: ["main_frame", "sub_frame", "xmlhttprequest"], ...incog },
         ["blocking"]
     );
     browser.webRequest.onBeforeSendHeaders.addListener(
-        onBeforeSendHeadersListener,
+        enabled === "sync-init" ? syncInitOnBeforeSendHeadersListener : onBeforeSendHeadersListener,
         { urls: BLOCKING_URLS, ...incog },
         ["blocking", "requestHeaders"]
     );
-}
-
-export function removeBlockingListeners() {
-    browser.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
-    browser.webRequest.onBeforeSendHeaders.removeListener(onBeforeSendHeadersListener);
 }

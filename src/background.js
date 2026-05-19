@@ -21,6 +21,14 @@ import {
   UI_COMMAND_NOT_RECOGNIZED_ERROR
 } from './scripts/errors.js'
 
+import {
+  IS_FIREFOX
+} from './scripts/config.js';
+
+import {
+  setBlockingListeners
+} from './scripts/blocking_webrequest.js';
+
 // ---- UI commands listener
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
@@ -54,4 +62,8 @@ async function onStart() {
   await sendPPModeStatus();
 }
 
+if (IS_FIREFOX) {
+  // Non-persistent background script must register these IMMEDIATELY
+  setBlockingListeners("sync-init");
+}
 onStart();

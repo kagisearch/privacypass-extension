@@ -1,6 +1,12 @@
 
 # Change Log
 
+## [1.0.12] - 2026-05-19
+
+### Fixed
+
+- Fix problems in Firefox when background script suspends.
+
 ## [1.0.11] - 2026-05-19
 
 ### Added
