@@ -19,8 +19,8 @@ export const FETCH_FAILED_ERROR = "<strong>Token generation failed</strong><br/>
 // when no session cookie is found
 export const NO_KAGI_SESSION_ERROR = "<strong>Token generation failed</strong><br/>Sign in to Kagi in a non-incognito window and click \"Generate tokens\". If you're already signed in, simply click \"Generate tokens\" to proceed.";
 
-// when the cookie jar is inaccessible (Tor Browser specific)
-export const NO_COOKIE_JAR_ACCESS = "<strong>Token generation failed</strong><br/>Are you using the Tor Browser? If so, load your <a href=\"https://help.kagi.com/kagi/privacy/private-browser-sessions.html\" target=\"_blank\" rel=\"noopener noreferrer\">Session Link</a> in the extension's settings menu. Then click \"Generate tokens\" to proceed.";
+// when the cookie jar is inaccessible
+export const NO_COOKIE_JAR_ACCESS = "<strong>Token generation failed</strong><br/>Load your <a href=\"https://help.kagi.com/kagi/privacy/private-browser-sessions.html\" target=\"_blank\" rel=\"noopener noreferrer\">Session Link</a> in the extension's settings menu. Then click \"Generate tokens\" to proceed.";
 
 // the extension UI sends an unrecognized command to the background service worker
 export const UI_COMMAND_NOT_RECOGNIZED_ERROR = "<strong>Command not recognized</strong><br/>This error should not have happened. Please contact support@kagi.com with the steps to reproduce it. Thank you for your help.";

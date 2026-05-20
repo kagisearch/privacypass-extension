@@ -4,7 +4,8 @@ import {
 } from './errors.js'
 
 import {
-  STAGING
+  STAGING,
+  IS_FIREFOX
 } from './config.js'
 
 /*
@@ -19,10 +20,17 @@ async function get_kagi_session() {
   try {
     let cookie_url = STAGING ? 'https://stage.kagi.com' : 'https://kagi.com';
     let cookie_name = STAGING ? 'kagi_session_stage' : 'kagi_session';
-    cookie = await browser.cookies.get({
+    const cookies = await browser.cookies.getAll({
       url: cookie_url,
       name: cookie_name,
+      path: '/',
+      ...(IS_FIREFOX
+        ? {
+            firstPartyDomain: null,
+          }
+        : {}),
     });
+    cookie = cookies.at(-1); // cookies are in chronological order
   } catch (ex) {
     failed_to_read_cookie_jar = true;
   }
@@ -49,8 +57,7 @@ async function get_kagi_session() {
   }
 
   // if you are here, the cookie jar was inaccessible and no session token was loaded into localStorage
-  // via the settings UI. likely you are using the Tor browser, or some other browser that does not
-  // let extensions see into the cookie jar
+  // via the settings UI. likely you are using a browser that does not let extensions access cookies
   throw NO_COOKIE_JAR_ACCESS;
 }
 
