@@ -1,6 +1,13 @@
 
 # Change Log
 
+## [1.0.13] - 2026-10-01
+
+### Fixed
+
+- Fix for Quick Answer & Inline Summarizer not working with the latest endpoints.
+- Fix get_kagi_session under First-Party Isolation (thanks @sgvictorino)
+
 ## [1.0.12] - 2026-05-19
 
 ### Fixed
