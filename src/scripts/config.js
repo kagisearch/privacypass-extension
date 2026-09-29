@@ -26,16 +26,11 @@ export const ONION_ISSUER_REQUEST_ENDPOINT = `${ONION_SCHEME}://${ONION_DOMAIN_P
 export const WWWA_ENDPOINT = STAGING ? `${SCHEME}://stage.${DOMAIN_PORT}/${WWWA_PATH}` : `${SCHEME}://${DOMAIN_PORT}/${WWWA_PATH}`;
 export const ONION_WWWA_ENDPOINT = `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/${WWWA_PATH}`;
 
-export const REDEMPTION_ENDPOINT_REGEX = "^https?://kagi[^/]+/(html/|socket/)?($|\\?|search|images|videos|news|podcasts|settings|mother/|reverse/)";
+export const REDEMPTION_ENDPOINT_REGEX = "^https?://[^/]+/(html/|socket/)?($|\\?|search|images|videos|news|podcasts|settings|summarizer|mother/|reverse/)";
 export const REDEMPTION_ENDPOINT_RE = new RegExp(REDEMPTION_ENDPOINT_REGEX);
 
-export const REDEMPTION_REQUEST_DOMAINS = STAGING
-    ? [DOMAIN, ONION_DOMAIN, `stage.${DOMAIN}`]
-    : [DOMAIN, ONION_DOMAIN];
-
-export const WEBREQUEST_REDEMPTION_ENDPOINTS = STAGING
-    ? [`${SCHEME}://${DOMAIN_PORT}/*`, `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/*`, `${SCHEME}://stage.${DOMAIN_PORT}/*`]
-    : [`${SCHEME}://${DOMAIN_PORT}/*`, `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/*`];
+export const REDEMPTION_REQUEST_DOMAINS = [DOMAIN, ONION_DOMAIN];
+export const WEBREQUEST_REDEMPTION_ENDPOINTS = [`${SCHEME}://*.${DOMAIN_PORT}/*`, `${ONION_SCHEME}://${ONION_DOMAIN_PORT}/*`];
 
 // token generation settings
 export const TOKENS_TO_STASH = 300;

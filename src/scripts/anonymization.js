@@ -52,8 +52,8 @@ export const ANONYMIZING_RULESET = isSafari ? UNIVERSAL_DEANONYMIZING_HEADERS : 
 export const ANONYMIZING_RULES_OFFSET = 20;
 export const ACCEPT_OVERRIDES = [
     { id: 150, path: "/socket/", accept: "text/event-stream" },
-    { id: 152, path: "/mother/context", accept: "application/vnd.kagi.stream" },
-    { id: 154, path: "/mother/summarize_document", accept: "application/vnd.kagi.stream" },
+    { id: 152, path: "/mother/context", subdomain: STAGING ? "a-api.stage" : "assistant-api", accept: "application/vnd.kagi.stream" },
+    { id: 154, path: "/mother/summarize_document", subdomain: STAGING ? "a-api.stage" : "assistant-api", accept: "application/vnd.kagi.stream" },
     { id: 156, path: "/?/translate", subdomain: "translate", accept: "application/json" },
     { id: 158, path: "/api/auth/turnstile", subdomain: "translate", accept: "*/*" },
 ];
