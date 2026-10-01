@@ -19,7 +19,6 @@
   "permissions": [
     "declarativeNetRequestWithHostAccess",
     "storage",
-    "alarms",
     "webRequest",
     "cookies"
   ],
