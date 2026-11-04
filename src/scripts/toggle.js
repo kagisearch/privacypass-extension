@@ -17,6 +17,7 @@ import {
 import {
     WEBREQUEST_REDEMPTION_ENDPOINTS,
     REDEMPTION_ENDPOINT_RE,
+    REDEMPTION_REQUEST_DOMAINS,
     IS_FIREFOX,
 } from './config.js'
 
@@ -41,7 +42,8 @@ import {
 } from './communication_with_main_extension.js'
 
 import {
-    INVALID_TOKEN_REDIRECT_URL
+    INVALID_TOKEN_REDIRECT_URL,
+    LOCAL_REDIRECTOR_URL,
 } from './anonymization.js'
 
 let nonIncogTabIds = null;
@@ -115,9 +117,20 @@ async function checkingDoubleSpendListener(details) {
     }
 }
 
-function onTabCreated(tab) {
+async function onTabCreated(tab) {
     (tab.incognito ? incogTabIds : nonIncogTabIds).add(tab.id);
-    applyMode();
+    await applyMode();
+    // Chrome sometimes blocks navigation to the redirector
+    // (most notably when searching from a context menu)
+    // Bypass it if it got stuck:
+    if (tab.pendingUrl) {
+        const host = new URL(tab.pendingUrl).hostname;
+        if (REDEMPTION_REQUEST_DOMAINS.some((d) => d === host || host.endsWith(`.${d}`))) {
+            if ((await browser.tabs.get(tab.id)).url.startsWith(LOCAL_REDIRECTOR_URL)) {
+                browser.tabs.update(tab.id, { url: tab.pendingUrl });
+            }
+        }
+    }
 }
 
 function onTabRemoved(tabId) {
