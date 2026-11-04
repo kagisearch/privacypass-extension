@@ -1,6 +1,12 @@
 
 # Change Log
 
+## [1.0.14] - 2026-11-04
+
+### Fixed
+
+- Fix context menu search in incognito-only mode in Chrome
+
 ## [1.0.13] - 2026-10-01
 
 ### Fixed
