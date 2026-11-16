@@ -29,6 +29,10 @@ import {
   setBlockingListeners
 } from './scripts/blocking_webrequest.js';
 
+import {
+  setRedirectorFallbackListeners
+} from './scripts/redirector_fallback.js';
+
 // ---- UI commands listener
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
@@ -65,5 +69,8 @@ async function onStart() {
 if (IS_FIREFOX) {
   // Non-persistent background script must register these IMMEDIATELY
   setBlockingListeners("sync-init");
+} else {
+  // Service worker must register these IMMEDIATELY to be woken up by them
+  setRedirectorFallbackListeners();
 }
 onStart();
